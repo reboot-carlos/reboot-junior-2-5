@@ -1224,6 +1224,10 @@
       input.addEventListener('keydown', e => {
         if (e.key === 'Enter') window.envoyerMessage();
       });
+
+      // Appliquer le thème sauvegardé
+      const savedTheme = localStorage.getItem('currentTheme') || 'vert';
+      appliquerTheme(savedTheme);
     } // Fin de initChat()
 
     // ============================================================
@@ -1438,6 +1442,7 @@
 
     // -------- THEME SWITCHER --------
     window.appliquerTheme = function(nomTheme) {
+      localStorage.setItem('currentTheme', nomTheme);
       const themes = {
         vert:   { bright:'#39FF14', light:'#7FFF00', primary:'#2D5016', gradient:'#1F4620', dark:'#0D2E0F', gray:'#1B5E2E', mid:'#0a1f0d' },
         rouge:  { bright:'#FF3939', light:'#FF7070', primary:'#501616', gradient:'#461F1F', dark:'#2E0D0D', gray:'#5E1B1B', mid:'#1f0a0a' },
