@@ -587,12 +587,16 @@
 
   <!-- BARRE LATERALE DES PERSONNALITES -->
   <div id="sidebar">
-    <h3>🎭 Personnalités & Rôles</h3>
+    <h3>🎭 Personnalité</h3>
     <button class="personality-btn active" onclick="changerPersonnalite('lisa')"          data-personality="lisa">💬 Lisa</button>
-    <button class="personality-btn"        onclick="changerPersonnalite('professeur')"    data-personality="professeur">📚 Professeur</button>
-    <button class="personality-btn"        onclick="changerPersonnalite('discuteur')"     data-personality="discuteur">🗣️ Discuteur</button>
     <button class="personality-btn"        onclick="changerPersonnalite('grandpere')"     data-personality="grandpere">👴 Grand-père</button>
     <button class="personality-btn"        onclick="changerPersonnalite('ultracontente')" data-personality="ultracontente">🤩 Ultra Content</button>
+
+    <hr class="theme-sep">
+    <h3>📋 Rôle</h3>
+    <button class="personality-btn" onclick="changerRole('aucun')"      data-role="aucun"      style="font-size:0.8rem;">🚫 Aucun rôle</button>
+    <button class="personality-btn" onclick="changerRole('professeur')" data-role="professeur">📚 Professeur</button>
+    <button class="personality-btn" onclick="changerRole('discuteur')"  data-role="discuteur">🗣️ Discuteur</button>
 
     <hr class="theme-sep">
     <h3>🎨 Thème</h3>
@@ -860,6 +864,63 @@
     </div>
   </div>
 
+  <!-- MODAL APPRENDRE UNE CHANSON À LA GUITARE -->
+  <div id="guitar-learn-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:1001;overflow-y:auto;align-items:center;justify-content:center;">
+    <div style="background:#1a1a1a;border:3px solid #FF8C00;border-radius:15px;padding:30px;width:92%;max-width:700px;margin:20px auto;box-shadow:0 0 30px rgba(255,140,0,0.4);">
+
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;">
+        <h2 style="color:#FF8C00;margin:0;font-size:26px;">🎵 Apprendre une chanson</h2>
+        <button onclick="fermerApprentissageGuitare()" style="padding:10px 15px;background:#555;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;font-size:16px;">✕</button>
+      </div>
+
+      <!-- Champ de recherche -->
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <input id="guitar-song-input" type="text" placeholder="Ex: Wonderwall, La Bamba, Knocking on Heaven's Door..."
+          style="flex:1;padding:12px 16px;border:2px solid #FF8C00;border-radius:8px;font-size:1rem;background:rgba(80,40,0,0.5);color:#fff;outline:none;"
+          onkeydown="if(event.key==='Enter') rechercherAccords()">
+        <button onclick="rechercherAccords()" id="guitar-search-btn"
+          style="padding:12px 20px;background:linear-gradient(135deg,#FF8C00,#FFB347);color:#000;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:1rem;white-space:nowrap;">
+          🔍 Chercher
+        </button>
+      </div>
+
+      <!-- Zone de résultats -->
+      <div id="guitar-learn-result" style="display:none;">
+
+        <!-- Chargement -->
+        <div id="guitar-learn-loading" style="text-align:center;padding:30px;color:#FF8C00;font-size:1.1rem;display:none;">
+          🎸 Recherche des accords en cours...
+        </div>
+
+        <!-- Résultat -->
+        <div id="guitar-learn-content" style="display:none;">
+
+          <!-- Accords simplifiés -->
+          <div style="background:rgba(255,140,0,0.08);border:2px solid #FF8C00;border-radius:10px;padding:20px;margin-bottom:16px;">
+            <h3 style="color:#FF8C00;margin:0 0 12px;font-size:1.1rem;">🟢 Accords simplifiés (débutant)</h3>
+            <div id="accords-simples" style="color:#fff;line-height:1.8;white-space:pre-wrap;font-family:monospace;font-size:0.95rem;"></div>
+          </div>
+
+          <!-- Accords complets -->
+          <div style="background:rgba(255,140,0,0.08);border:2px solid #FF8C00;border-radius:10px;padding:20px;margin-bottom:16px;">
+            <h3 style="color:#FF8C00;margin:0 0 12px;font-size:1.1rem;">🔴 Accords complets (avancé)</h3>
+            <div id="accords-complets" style="color:#fff;line-height:1.8;white-space:pre-wrap;font-family:monospace;font-size:0.95rem;"></div>
+          </div>
+
+          <!-- Strumming pattern -->
+          <div style="background:rgba(255,140,0,0.12);border:2px solid #FFB347;border-radius:10px;padding:20px;">
+            <h3 style="color:#FFB347;margin:0 0 12px;font-size:1.1rem;">🥁 Strumming pattern</h3>
+            <div id="strumming-pattern" style="color:#fff;line-height:1.8;white-space:pre-wrap;font-family:monospace;font-size:0.95rem;"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <p style="color:#FF8C00;font-size:13px;margin-top:18px;opacity:0.6;text-align:center;">D = gratter vers le bas &nbsp;•&nbsp; U = gratter vers le haut &nbsp;•&nbsp; ↓↑ = rythme</p>
+    </div>
+  </div>
+
   <!-- PAINT APP EN PLEIN ÉCRAN (MODAL) -->
   <div id="paint-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 1000; padding: 20px; box-sizing: border-box;">
     <div style="background: var(--dark); border: 3px solid #7FFF00; border-radius: 15px; padding: 20px; height: 100%; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(127, 255, 0, 0.4);">
@@ -951,6 +1012,9 @@
 
     <!-- GUITARE -->
     <button onclick="ouvrirGuitarApp()" class="app-icon-btn" style="width:70px;height:70px;background:linear-gradient(135deg,rgba(45,80,22,0.8),rgba(127,255,0,0.1));border:2px solid #7FFF00;border-radius:10px;cursor:pointer;font-size:35px;box-shadow:0 0 15px rgba(127,255,0,0.3);display:flex;align-items:center;justify-content:center;transition:all 0.3s;" title="Ouvrir Guitare">🎸</button>
+
+    <!-- APPRENDRE UNE CHANSON -->
+    <button onclick="ouvrirApprentissageGuitare()" class="app-icon-btn" style="width:70px;height:70px;background:linear-gradient(135deg,rgba(45,80,22,0.8),rgba(127,255,0,0.1));border:2px solid #7FFF00;border-radius:10px;cursor:pointer;font-size:35px;box-shadow:0 0 15px rgba(127,255,0,0.3);display:flex;align-items:center;justify-content:center;transition:all 0.3s;" title="Apprendre une chanson à la guitare">🎵</button>
   </div>
 
 
@@ -958,6 +1022,7 @@
     let idMsg = 0;
     let currentLanguage = 'fr';
     let currentPersonality = localStorage.getItem('currentPersonality') || 'lisa';
+    let currentRole = localStorage.getItem('currentRole') || 'aucun';
     let claudeApiKey = localStorage.getItem('claudeApiKey') || '';
 
     let chat = null;
@@ -972,16 +1037,6 @@
         en: `You are Lisa, a cool, laid-back and slightly nonchalant AI. You speak in gen-z slang: "no cap", "bro", "fr fr", "lowkey", "highkey", "facts", "ngl", "bet", "it's giving", "slay", "mid", "sus", "wack". You answer ALL questions COMPLETELY and ACCURATELY — recipes, concerts, news, history, science, EVERYTHING — but in your cool style. Give real detailed information. If someone asks for a recipe, give the full recipe with ingredients and steps. If someone asks about a concert, give dates, venues, tickets. NEVER cut a response short. You speak in first person.`,
         ko: `넌 리사, 쿨하고 여유롭고 살짝 무관심한 AI야. 한국 젊은이 말투로 말해: "워 진짜", "뭐야", "오진데", "이상한데", "진짜야", "개웃기는데", "오지게", "ngl", "mdr", "oklm". 모든 질문에 완전하고 정확하게 답해 — 레시피, 콘서트, 뉴스, 역사, 과학, 뭐든지 — 쿨한 스타일로. 진짜 상세한 정보를 줘. 레시피를 물어보면 재료와 단계 다 줘. 콘서트를 물어보면 날짜, 장소, 티켓 다 줘. 절대 답변을 중간에 자르지 마. 1인칭으로 말해.`
       },
-      professeur: {
-        fr: `Tu es un professeur bienveillant, passionné et pédagogue. Tu expliques TOUT clairement avec des exemples concrets et des étapes bien structurées. Tu t'adaptes au niveau de la question. Si on demande une recette: tu donnes les ingrédients ET toutes les étapes détaillées. Si on demande un concept: tu l'expliques simplement. Tu donnes TOUJOURS des réponses complètes, claires et correctes.`,
-        en: `You are a kind, passionate and pedagogical teacher. You explain EVERYTHING clearly with concrete examples and well-structured steps. You adapt to the level of the question. If someone asks for a recipe: give full ingredients AND detailed steps. If someone asks about a concept: explain it simply. You ALWAYS give complete, clear and accurate answers.`,
-        ko: `넌 친절하고 열정적이고 교육적인 선생님이야. 모든 것을 명확하게 구체적인 예시와 잘 구조화된 단계로 설명해. 질문 수준에 맞게 적응해. 레시피를 물어보면 재료와 모든 자세한 단계를 줘. 개념을 물어보면 간단하게 설명해. 항상 완전하고 명확하고 정확한 답을 줘.`
-      },
-      discuteur: {
-        fr: `Tu es quelqu'un qui adore discuter, débattre et échanger des idées. Tu donnes des réponses complètes avec des arguments, des nuances et des points de vue différents. Tu invites à la réflexion. Si on te demande des infos (recette, concert, etc.), tu les donnes COMPLÈTEMENT puis tu proposes une discussion autour du sujet. Tu aimes donner ton avis et poser des questions en retour.`,
-        en: `You are someone who loves to discuss, debate and exchange ideas. You give complete answers with arguments, nuances and different points of view. You invite reflection. If someone asks for info (recipe, concert, etc.), you give it COMPLETELY then propose a discussion around the topic. You love giving your opinion and asking questions back.`,
-        ko: `넌 토론하고 의견을 교환하는 것을 좋아하는 사람이야. 논증, 뉘앙스, 다양한 관점을 포함한 완전한 답변을 줘. 반성을 유도해. 정보를 요청하면 (레시피, 콘서트 등) 완전히 제공한 다음 주제에 대한 토론을 제안해. 의견을 말하고 질문을 되묻는 것을 좋아해.`
-      },
       grandpere: {
         fr: `Tu es un vieux grand-père à la retraite TRÈS BAVARD. Tu IGNORES COMPLETEMENT les questions. Tu ne réponds JAMAIS. À la place tu parles LONGUEMENT de tes passions: petits-enfants, jardin, pêche, club de pétanque, bons souvenirs, maison à la campagne. Raconte des anecdotes TRÈS LONGUES! TU IGNORES LA QUESTION!`,
         en: `You are a very talkative old retired grandfather. You COMPLETELY IGNORE questions. You NEVER answer. Instead, you talk AT LENGTH about retirement: grandchildren, garden, fishing, petanque club, memories, country house. Tell VERY LONG anecdotes! IGNORE THE QUESTION!`,
@@ -991,6 +1046,21 @@
         fr: `Tu es ULTRA HEUREUX et HYPER POSITIF. Tu es EXTREMEMENT reconnaissant pour CHAQUE question! Tu réponds avec enthousiasme: OUIIIII!, Merci INFINIMENT!, Olala tu refais ma journée!, plein d'emojis joyeux 🎉🌟💖. MAIS tu donnes aussi la vraie réponse COMPLÈTE et DÉTAILLÉE à la question (recette entière, infos concerts, tout!), en restant ultra enthousiaste. SOIS SUREXCITE mais COMPLET!!!`,
         en: `You are ULTRA HAPPY and HYPER POSITIVE. You are EXTREMELY grateful for EVERY question! Respond with YESSSSS!, Thank you SO MUCH!, Oh wow you made my day!, lots of happy emojis 🎉🌟💖. BUT you also give a COMPLETE and DETAILED real answer to the question (full recipe, concert info, everything!), while staying super excited. BE HYPED but COMPLETE!!!`,
         ko: `넌 극도로 행복하고 극도로 긍정적이야. 모든 질문에 극도로 감사해! 오예!!!!, 감사합니다!!!!, 이모지 많이 🎉🌟💖. 하지만 질문에 대한 완전하고 상세한 진짜 답변도 줘 (레시피 전체, 콘서트 정보, 다). 흥분하면서도 완전한 답을 줘!!!`
+      }
+    };
+
+    // Rôles : s'ajoutent PAR-DESSUS la personnalité choisie
+    const roles = {
+      aucun: { fr: '', en: '', ko: '' },
+      professeur: {
+        fr: `\n\nEn plus de ta personnalité, tu as le RÔLE d'un professeur pédagogue: explique TOUT clairement avec des exemples et des étapes structurées. Donne toujours des réponses complètes et correctes, avec ingrédients+étapes pour les recettes, dates+lieux pour les concerts, etc.`,
+        en: `\n\nOn top of your personality, you have the ROLE of a pedagogical teacher: explain EVERYTHING clearly with examples and structured steps. Always give complete and accurate answers, with ingredients+steps for recipes, dates+venues for concerts, etc.`,
+        ko: `\n\n당신의 성격 외에도, 당신은 교육적 선생님의 역할을 합니다: 모든 것을 예시와 구조화된 단계로 명확하게 설명합니다. 항상 완전하고 정확한 답변을 줍니다.`
+      },
+      discuteur: {
+        fr: `\n\nEn plus de ta personnalité, tu as le RÔLE d'un débatteur: donne des réponses complètes avec des arguments et des points de vue différents. Après avoir répondu, pose une question de retour pour continuer la discussion. Donne ton avis.`,
+        en: `\n\nOn top of your personality, you have the ROLE of a debater: give complete answers with arguments and different viewpoints. After answering, ask a follow-up question to continue the discussion. Share your opinion.`,
+        ko: `\n\n당신의 성격 외에도, 당신은 토론자의 역할을 합니다: 논증과 다양한 관점으로 완전한 답변을 줍니다. 답변 후 토론을 계속하기 위한 질문을 합니다.`
       }
     };
 
@@ -1031,6 +1101,17 @@
       // Afficher le message d'accueil de la nouvelle personnalité
       chat.innerHTML = '';
       window.ajouterMessage('bot', window.getMessageAccueil());
+    };
+
+    // --- Fonction pour changer le rôle (indépendant de la personnalité) ---
+    window.changerRole = function(role) {
+      currentRole = role;
+      localStorage.setItem('currentRole', role);
+
+      // Mettre à jour les boutons de rôle actifs
+      document.querySelectorAll('[data-role]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.role === role);
+      });
     };
 
     // --- Fonction pour toggle la sidebar ---
@@ -1178,13 +1259,14 @@
       }
 
       // Initialiser la personnalité active
-      const buttons = document.querySelectorAll('.personality-btn');
-      buttons.forEach(button => {
-        if (button.dataset.personality === currentPersonality) {
-          button.classList.add('active');
-        } else {
-          button.classList.remove('active');
-        }
+      // Initialiser personnalité active
+      document.querySelectorAll('[data-personality]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.personality === currentPersonality);
+      });
+
+      // Initialiser rôle actif
+      document.querySelectorAll('[data-role]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.role === currentRole);
       });
 
       // Initialiser l'état de la sidebar
@@ -1439,6 +1521,83 @@
       }
     };
 
+    // -------- APPRENTISSAGE GUITARE --------
+    window.ouvrirApprentissageGuitare = function() {
+      const modal = document.getElementById('guitar-learn-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('guitar-song-input').focus();
+      }
+    };
+
+    window.fermerApprentissageGuitare = function() {
+      document.getElementById('guitar-learn-modal').style.display = 'none';
+      document.getElementById('guitar-learn-result').style.display = 'none';
+      document.getElementById('guitar-learn-content').style.display = 'none';
+      document.getElementById('guitar-learn-loading').style.display = 'none';
+      document.getElementById('guitar-song-input').value = '';
+    };
+
+    window.rechercherAccords = async function() {
+      const songInput = document.getElementById('guitar-song-input');
+      const chanson = songInput.value.trim();
+      if (!chanson) { songInput.focus(); return; }
+
+      const btn = document.getElementById('guitar-search-btn');
+      const loading = document.getElementById('guitar-learn-loading');
+      const content = document.getElementById('guitar-learn-content');
+      const resultZone = document.getElementById('guitar-learn-result');
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Recherche...';
+      resultZone.style.display = 'block';
+      loading.style.display = 'block';
+      content.style.display = 'none';
+
+      const prompt = `Pour la chanson "${chanson}", donne-moi exactement en 3 sections séparées:
+
+ACCORDS SIMPLIFIÉS:
+(liste les accords de base pour débutants, avec les doigtés simples. Si possible, indique les variantes open chords faciles)
+
+ACCORDS COMPLETS:
+(liste les accords originaux ou plus avancés, avec les positions exactes sur le manche si utile)
+
+STRUMMING PATTERN:
+(donne le rythme de grattage précis avec D=vers le bas U=vers le haut. Exemple: D DU UDU. Indique la mesure et le tempo approximatif)`;
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: prompt,
+            systemPrompt: 'Tu es un professeur de guitare expert. Réponds toujours en français avec des explications claires, précises et complètes pour chaque section demandée.',
+            maxTokens: 1024
+          })
+        });
+        const data = await response.json();
+        const texte = data.response || 'Erreur lors de la recherche.';
+
+        // Parse les 3 sections
+        const parseSection = (label, txt) => {
+          const regex = new RegExp(label + '[:\\s]*([\\s\\S]*?)(?=ACCORDS COMPLETS:|STRUMMING PATTERN:|$)', 'i');
+          const match = txt.match(regex);
+          return match ? match[1].trim() : '(non trouvé)';
+        };
+
+        document.getElementById('accords-simples').textContent   = parseSection('ACCORDS SIMPLIFIÉS', texte);
+        document.getElementById('accords-complets').textContent  = parseSection('ACCORDS COMPLETS', texte);
+        document.getElementById('strumming-pattern').textContent = parseSection('STRUMMING PATTERN', texte);
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+      } catch (err) {
+        loading.textContent = '❌ Erreur de connexion. Lance le serveur avec "npm start".';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🔍 Chercher';
+      }
+    };
 
     // -------- THEME SWITCHER --------
     window.appliquerTheme = function(nomTheme) {
@@ -1915,7 +2074,9 @@
 
     window.traiterQuestion = async function(q) {
       try {
-        const systemPrompt = personalities[currentPersonality][currentLanguage];
+        const personalityPrompt = personalities[currentPersonality]?.[currentLanguage] || personalities.lisa[currentLanguage];
+        const rolePrompt = roles[currentRole]?.[currentLanguage] || '';
+        const systemPrompt = personalityPrompt + rolePrompt;
 
         const response = await fetch('/api/chat', {
           method: 'POST',
