@@ -587,15 +587,12 @@
 
   <!-- BARRE LATERALE DES PERSONNALITES -->
   <div id="sidebar">
-    <h3>🎭 Personnalités</h3>
+    <h3>🎭 Personnalités & Rôles</h3>
     <button class="personality-btn active" onclick="changerPersonnalite('lisa')"          data-personality="lisa">💬 Lisa</button>
+    <button class="personality-btn"        onclick="changerPersonnalite('professeur')"    data-personality="professeur">📚 Professeur</button>
+    <button class="personality-btn"        onclick="changerPersonnalite('discuteur')"     data-personality="discuteur">🗣️ Discuteur</button>
     <button class="personality-btn"        onclick="changerPersonnalite('grandpere')"     data-personality="grandpere">👴 Grand-père</button>
     <button class="personality-btn"        onclick="changerPersonnalite('ultracontente')" data-personality="ultracontente">🤩 Ultra Content</button>
-
-    <hr class="theme-sep">
-    <h3>📋 Rôles</h3>
-    <button class="personality-btn" onclick="changerPersonnalite('professeur')" data-personality="professeur">📚 Professeur</button>
-    <button class="personality-btn" onclick="changerPersonnalite('discuteur')"  data-personality="discuteur">🗣️ Discuteur</button>
 
     <hr class="theme-sep">
     <h3>🎨 Thème</h3>
@@ -1058,23 +1055,23 @@
       const lang = currentLanguage;
 
       if (currentPersonality === 'lisa') {
-        return lang === 'fr' ? 'Wesh, quoi de neuf? Pose ta question, oklm.'
-             : lang === 'en' ? 'Hey, what\'s good? Ask me anything, no cap.'
-             : '야, 뭐야? 뭐든지 물어봐, ngl.';
+        return lang === 'fr' ? 'Salut gros porc'
+             : lang === 'en' ? 'Hey buddy'
+             : '안녕 이 멍청아';
       } else if (currentPersonality === 'professeur') {
         return lang === 'fr' ? 'Bonjour ! Je suis là pour répondre à toutes vos questions. Recettes, sciences, histoire, concerts... n\'hésitez pas !'
              : lang === 'en' ? 'Hello! I\'m here to answer all your questions. Recipes, science, history, concerts... feel free to ask!'
              : '안녕하세요! 모든 질문에 답변드리겠습니다. 레시피, 과학, 역사, 콘서트... 무엇이든 물어보세요!';
       } else if (currentPersonality === 'discuteur') {
-        return lang === 'fr' ? 'Salut ! Qu\'est-ce qu\'on discute aujourd\'hui? Je suis partant pour tout débattre !'
+        return lang === 'fr' ? 'Salut ! Qu\'est-ce qu\'on discute aujourd\'hui ? Je suis partant pour tout débattre !'
              : lang === 'en' ? 'Hey! What are we discussing today? I\'m up for debating anything!'
              : '안녕! 오늘 뭘 토론할까? 뭐든지 토론할 준비가 됐어!';
       } else if (currentPersonality === 'grandpere') {
-        return lang === 'fr' ? 'Salut mon fils, cela fait longtemps qu\'on ne s\'est pas vu, comment vas-tu?'
+        return lang === 'fr' ? 'Salut mon fils cela fait longtemps qu\'on ne s\'est pas vu, comment va tu?'
              : lang === 'en' ? 'Hey my son, it\'s been so long, how are you doing?'
              : '안녕 내 아들아 정말 오랜만이야, 어떻게 지내?';
       } else if (currentPersonality === 'ultracontente') {
-        return lang === 'fr' ? 'OMGGGG TU M\'AS TROP MANQUÉEE COMMENT CA VAAAAAAAAA!!!!?????'
+        return lang === 'fr' ? 'OMGGGG TU M\'A TROP MANQUEEEE COMMENT CA VAAAAAAAAA!!!!?????'
              : lang === 'en' ? 'OMGGGGG I MISSED YOU SO MUUUUUCH HOW ARE YOUUUUU!!!!?????'
              : 'OMGGGG 정말 너무 그리웠어!!!! 어떻게 지냈어?????';
       }
