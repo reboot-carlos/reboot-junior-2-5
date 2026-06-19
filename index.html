@@ -550,6 +550,30 @@
       display: block;
     }
 
+    /* ========== CHORD BUTTONS ========== */
+    .chord-btn {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, #2A1A0E, #3D2814);
+      border: 2px solid #FF8C00;
+      color: #FF8C00;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.95rem;
+      font-family: monospace;
+      transition: all 0.15s;
+      box-shadow: 0 0 8px rgba(255,140,0,0.3);
+      min-width: 52px;
+      letter-spacing: 0.5px;
+    }
+    .chord-btn:hover {
+      background: linear-gradient(135deg, #3D2814, rgba(255,140,0,0.6));
+      color: #fff;
+      transform: scale(1.1);
+      box-shadow: 0 0 18px rgba(255,140,0,0.7);
+    }
+    .chord-btn:active { transform: scale(0.94); }
+
     /* ========== THEME SELECTOR ========== */
     .theme-sep {
       border: none;
@@ -860,7 +884,43 @@
 
       </div><!-- end .g-board -->
 
-      <p style="color:#FF8C00;font-size:14px;margin-top:16px;opacity:0.75;">Clique sur les cordes pour jouer • Le numéro = la frette • ● = corde à vide 🎵</p>
+      <!-- ACCORDS -->
+      <div style="width:100%;max-width:820px;margin-top:22px;">
+        <p style="color:#FF8C00;font-size:13px;margin-bottom:10px;text-align:center;opacity:0.85;">🎵 Accords — clique pour entendre le son complet</p>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:8px;">
+          <!-- Accords ouverts majeurs -->
+          <button onclick="jouerAccord('E')"  class="chord-btn" title="Mi majeur">E</button>
+          <button onclick="jouerAccord('A')"  class="chord-btn" title="La majeur">A</button>
+          <button onclick="jouerAccord('D')"  class="chord-btn" title="Ré majeur">D</button>
+          <button onclick="jouerAccord('G')"  class="chord-btn" title="Sol majeur">G</button>
+          <button onclick="jouerAccord('C')"  class="chord-btn" title="Do majeur">C</button>
+          <button onclick="jouerAccord('F')"  class="chord-btn" title="Fa majeur">F</button>
+          <button onclick="jouerAccord('B')"  class="chord-btn" title="Si majeur">B</button>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:8px;">
+          <!-- Accords mineurs -->
+          <button onclick="jouerAccord('Em')" class="chord-btn" title="Mi mineur">Em</button>
+          <button onclick="jouerAccord('Am')" class="chord-btn" title="La mineur">Am</button>
+          <button onclick="jouerAccord('Dm')" class="chord-btn" title="Ré mineur">Dm</button>
+          <button onclick="jouerAccord('Gm')" class="chord-btn" title="Sol mineur">Gm</button>
+          <button onclick="jouerAccord('Cm')" class="chord-btn" title="Do mineur">Cm</button>
+          <button onclick="jouerAccord('Bm')" class="chord-btn" title="Si mineur">Bm</button>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+          <!-- Accords de septième -->
+          <button onclick="jouerAccord('E7')" class="chord-btn" title="Mi 7">E7</button>
+          <button onclick="jouerAccord('A7')" class="chord-btn" title="La 7">A7</button>
+          <button onclick="jouerAccord('D7')" class="chord-btn" title="Ré 7">D7</button>
+          <button onclick="jouerAccord('G7')" class="chord-btn" title="Sol 7">G7</button>
+          <button onclick="jouerAccord('C7')" class="chord-btn" title="Do 7">C7</button>
+          <button onclick="jouerAccord('B7')" class="chord-btn" title="Si 7">B7</button>
+        </div>
+      </div>
+
+      <p style="color:#FF8C00;font-size:13px;margin-top:14px;opacity:0.6;text-align:center;">Cordes individuelles: clique sur le manche • Accords: clique sur les boutons ci-dessus</p>
     </div>
   </div>
 
@@ -1519,6 +1579,65 @@
       if (modal) {
         modal.style.display = 'none';
       }
+    };
+
+    // -------- ACCORDS GUITARE --------
+    const chordFreqs = {
+      'E':  [82.41, 123.47, 164.81, 207.65, 246.94, 329.63],  // E2 B2 E3 G#3 B3 E4
+      'A':  [110,   164.81, 220,    277.18, 329.63],           // A2 E3 A3 C#4 E4
+      'D':  [146.83, 220,   293.66, 369.99],                   // D3 A3 D4 F#4
+      'G':  [98.00, 123.47, 146.83, 196,    246.94, 392],      // G2 B2 D3 G3 B3 G4
+      'C':  [130.81, 164.81, 196,   261.63, 329.63],           // C3 E3 G3 C4 E4
+      'F':  [87.31, 130.81, 174.61, 220,    261.63, 349.23],   // F2 C3 F3 A3 C4 F4
+      'B':  [123.47, 185,   246.94, 311.13, 369.99],           // B2 F#3 B3 D#4 F#4
+      'Em': [82.41, 123.47, 164.81, 196,    246.94, 329.63],   // E2 B2 E3 G3 B3 E4
+      'Am': [110,   164.81, 220,    261.63, 329.63],           // A2 E3 A3 C4 E4
+      'Dm': [146.83, 220,   293.66, 349.23],                   // D3 A3 D4 F4
+      'Gm': [98.00, 123.47, 146.83, 185,    246.94, 392],      // G2 B2 D3 F#3 B3 G4
+      'Cm': [130.81, 164.81, 196,   261.63, 311.13],           // C3 E3 G3 C4 Eb4
+      'Bm': [123.47, 185,   246.94, 293.66, 369.99],           // B2 F#3 B3 D4 F#4
+      'E7': [82.41, 123.47, 164.81, 207.65, 293.66, 329.63],   // E2 B2 E3 G#3 D4 E4
+      'A7': [110,   164.81, 196,    277.18, 329.63],           // A2 E3 G3 C#4 E4
+      'D7': [146.83, 220,   261.63, 369.99],                   // D3 A3 C4 F#4
+      'G7': [98.00, 123.47, 174.61, 196,    246.94, 392],      // G2 B2 F3 G3 B3 G4
+      'C7': [130.81, 164.81, 196,   261.63, 311.13],           // C3 E3 G3 C4 Eb4
+      'B7': [123.47, 164.81, 207.65, 246.94, 311.13, 369.99],  // B2 E3 G#3 B3 D#4 F#4
+    };
+
+    window.jouerAccord = function(nomAccord) {
+      const freqs = chordFreqs[nomAccord];
+      if (!freqs) return;
+
+      const noteDisplay = document.getElementById('note-display');
+      if (noteDisplay) noteDisplay.textContent = nomAccord;
+
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      // Strum: chaque corde avec 30ms de décalage (grave → aigu)
+      freqs.forEach((freq, i) => {
+        setTimeout(() => {
+          try {
+            const osc  = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+
+            // Volume décroissant (les graves un peu plus fort)
+            const vol = 0.22 - i * 0.01;
+            gain.gain.setValueAtTime(vol, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.8);
+
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 1.8);
+          } catch(e) { console.error('Erreur audio:', e); }
+        }, i * 28);
+      });
     };
 
     // -------- APPRENTISSAGE GUITARE --------

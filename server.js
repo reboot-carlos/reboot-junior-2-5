@@ -9,6 +9,12 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Landing page par défaut à la racine
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'landing.html'));
+});
+
 app.use(express.static('.'));
 
 const CLAUDE_API_KEY = process.env.ANTHROPIC_API_KEY;
