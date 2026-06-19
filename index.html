@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mon Chatbot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Satisfy&family=Caveat:wght@700&display=swap" rel="stylesheet">
+  <audio id="hardrock-music" autoplay loop style="display: none;">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" type="audio/mpeg">
+  </audio>
+  <style>
+    :root {
+      --primary: #2D5016;
+      --gradient: #1F4620;
+      --dark:    #0D2E0F;
+      --gray:    #1B5E2E;
+      --green-bright: #39FF14;
+      --green-light: #7FFF00;
+      --white:   #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, var(--dark) 0%, #0a1f0d 50%, var(--dark) 100%);
+      background-attachment: fixed;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 50%, rgba(127, 255, 0, 0.05) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(57, 255, 20, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      width: 100%;
+      max-width: 720px;
+      background: linear-gradient(135deg, var(--gradient) 0%, #2d5016 50%, #1F4620 100%);
+      padding: 1.2rem 2rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 0 20px rgba(127, 255, 0, 0.2), 0 0 40px rgba(57, 255, 20, 0.1), inset 0 0 20px rgba(127, 255, 0, 0.1);
+      border: 1px solid rgba(127, 255, 0, 0.3);
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    header .logo { font-size: 2.2rem; }
+
+    header h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3rem;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      color: #7FFF00;
+      animation: neonGlow 2s ease-in-out infinite;
+      transform: scale(1.2);
+    }
+
+    header p {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin-top: 0.2rem;
+    }
+
+    #zone-chat {
+      width: 100%;
+      max-width: 720px;
+      background-color: #051D1C;
+      background-image: radial-gradient(circle, #7FFF00 2px, transparent 2px);
+      background-size: 40px 40px;
+      border-radius: 12px;
+      padding: 1.5rem;
+      min-height: 350px;
+      max-height: 520px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      scroll-behavior: smooth;
+      box-shadow: 0 0 15px #2D5016, 0 0 25px #1B6B2F, inset 0 0 10px rgba(45, 80, 22, 0.2);
+      animation: blackGlow 1.5s ease-in-out infinite;
+    }
+
+    .message {
+      max-width: 88%;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      line-height: 1.6;
+      font-size: 1.25rem;
+    }
+
+    .handwritten {
+      font-family: 'Caveat', cursive;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .message.bot {
+      background: var(--dark);
+      border-left: 3px solid var(--primary);
+      align-self: flex-start;
+      font-family: 'Great Vibes', cursive;
+      font-size: 1.4rem;
+      text-shadow: 0 0 10px #7FFF00, 0 0 15px #39FF14;
+      color: #7FFF00;
+      font-weight: bold;
+      animation: fluorGlow 1.5s ease-in-out infinite;
+    }
+
+    .message.user {
+      background: var(--gradient);
+      align-self: flex-end;
+      text-align: right;
+    }
+
+    .message.loading {
+      background: var(--dark);
+      border-left: 3px solid var(--primary);
+      align-self: flex-start;
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    #suggestions {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .btn-suggestion {
+      background: rgba(45, 80, 22, 0.2);
+      border: 1.5px solid #7FFF00;
+      color: #7FFF00;
+      padding: 0.4rem 0.9rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 8px rgba(127, 255, 0, 0.2);
+    }
+
+    .btn-suggestion:hover {
+      border-color: #39FF14;
+      color: #39FF14;
+      background: rgba(57, 255, 20, 0.2);
+      box-shadow: 0 0 12px rgba(57, 255, 20, 0.4), inset 0 0 8px rgba(57, 255, 20, 0.1);
+      transform: scale(1.05);
+    }
+
+    .btn-suggestion:active {
+      animation: buttonPulse 0.4s ease-out;
+    }
+
+    #formulaire {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    #champ-texte {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 2px solid #7FFF00;
+      border-radius: 8px;
+      font-size: 1.3rem;
+      background: rgba(27, 94, 46, 0.5);
+      color: var(--white);
+      outline: none;
+      transition: all 0.3s;
+      box-shadow: 0 0 8px rgba(127, 255, 0, 0.2), inset 0 0 5px rgba(127, 255, 0, 0.1);
+    }
+
+    #champ-texte::placeholder { color: #7FFF0066; }
+    #champ-texte:focus {
+      border-color: #39FF14;
+      box-shadow: 0 0 15px rgba(57, 255, 20, 0.4), 0 0 25px rgba(127, 255, 0, 0.2), inset 0 0 10px rgba(57, 255, 20, 0.1);
+      background: rgba(27, 94, 46, 0.8);
+    }
+
+    #bouton-envoyer {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary), #39FF14);
+      color: white;
+      border: 2px solid #7FFF00;
+      border-radius: 8px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(127, 255, 0, 0.3), 0 0 20px rgba(57, 255, 20, 0.1);
+    }
+
+    #bouton-envoyer:hover {
+      opacity: 1;
+      box-shadow: 0 0 15px rgba(127, 255, 0, 0.5), 0 0 30px rgba(57, 255, 20, 0.3);
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+
+    #bouton-envoyer:active {
+      animation: buttonPulse 0.5s ease-out;
+    }
+
+    #bouton-envoyer:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    @keyframes explosion {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.8; }
+      100% { transform: scale(0.1); opacity: 0; }
+    }
+
+    @keyframes zoomTitle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    @keyframes neonGlow {
+      0%, 100% {
+        text-shadow: 0 0 10px #7FFF00, 0 0 20px #39FF14, 0 0 30px #00FF00;
+      }
+      50% {
+        text-shadow: 0 0 20px #7FFF00, 0 0 30px #39FF14, 0 0 40px #00FF00, 0 0 50px #39FF14;
+      }
+    }
+
+    @keyframes fluorGlow {
+      0%, 100% { text-shadow: 0 0 10px #7FFF00, 0 0 15px #39FF14; }
+      50% { text-shadow: 0 0 15px #7FFF00, 0 0 20px #39FF14; }
+    }
+
+    @keyframes blackGlow {
+      0%, 100% { box-shadow: 0 0 30px #39FF14, 0 0 50px #00FF00, inset 0 0 20px rgba(57, 255, 20, 0.3); }
+      50% { box-shadow: 0 0 40px #39FF14, 0 0 60px #00FF00, inset 0 0 30px rgba(57, 255, 20, 0.5); }
+    }
+
+    @keyframes greenGlow {
+      0%, 100% { text-shadow: 0 0 10px #00FF00, 0 0 20px #39FF14, 0 0 30px #00AA00; }
+      50% { text-shadow: 0 0 20px #00FF00, 0 0 30px #39FF14, 0 0 40px #00AA00; }
+    }
+
+    @keyframes buttonPulse {
+      0% { box-shadow: 0 0 5px #7FFF00, 0 0 10px #39FF14; }
+      50% { box-shadow: 0 0 15px #7FFF00, 0 0 25px #39FF14, 0 0 40px #00FF00, inset 0 0 15px rgba(127, 255, 0, 0.3); }
+      100% { box-shadow: 0 0 5px #7FFF00, 0 0 10px #39FF14; }
+    }
+
+    @keyframes borderGlow {
+      0% { border-color: #7FFF00; box-shadow: 0 0 5px #7FFF00, 0 0 10px #39FF14, inset 0 0 5px rgba(127, 255, 0, 0.2); }
+      50% { border-color: #39FF14; box-shadow: 0 0 15px #7FFF00, 0 0 25px #39FF14, 0 0 35px #00FF00, inset 0 0 15px rgba(57, 255, 20, 0.3); }
+      100% { border-color: #7FFF00; box-shadow: 0 0 5px #7FFF00, 0 0 10px #39FF14, inset 0 0 5px rgba(127, 255, 0, 0.2); }
+    }
+
+    button:active, button:focus {
+      animation: buttonPulse 0.6s ease-out;
+      outline: none;
+    }
+
+    button {
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      filter: brightness(1.2);
+    }
+
+    input:focus {
+      box-shadow: 0 0 15px #7FFF00, 0 0 25px #39FF14, inset 0 0 10px rgba(127, 255, 0, 0.1);
+      outline: none;
+    }
+
+    #sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 220px;
+      height: 100vh;
+      background: linear-gradient(180deg, rgba(45, 80, 22, 0.9) 0%, rgba(13, 46, 15, 0.9) 100%);
+      border-right: 2px solid #7FFF00;
+      padding: 1rem;
+      overflow-y: auto;
+      z-index: 999;
+      box-shadow: 0 0 20px rgba(127, 255, 0, 0.2), inset 0 0 20px rgba(127, 255, 0, 0.05);
+      transition: transform 0.3s ease;
+    }
+
+    #sidebar.closed {
+      transform: translateX(-100%);
+    }
+
+    #toggle-sidebar {
+      position: fixed;
+      left: 220px;
+      top: 20px;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #7FFF00, #39FF14);
+      border: 2px solid #7FFF00;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 998;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #000;
+      box-shadow: 0 0 15px rgba(127, 255, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    #toggle-sidebar:hover {
+      box-shadow: 0 0 20px rgba(127, 255, 0, 0.5);
+      transform: scale(1.1);
+    }
+
+    #sidebar.closed ~ #toggle-sidebar {
+      left: 0;
+    }
+
+    #sidebar h3 {
+      color: #39FF14;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .personality-btn {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+      background: rgba(45, 80, 22, 0.6);
+      border: 1.5px solid #7FFF00;
+      color: #7FFF00;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .personality-btn:hover {
+      background: rgba(57, 255, 20, 0.2);
+      border-color: #39FF14;
+      color: #39FF14;
+      box-shadow: 0 0 12px rgba(57, 255, 20, 0.4), inset 0 0 8px rgba(57, 255, 20, 0.1);
+      transform: translateX(5px);
+    }
+
+    .personality-btn.active {
+      background: linear-gradient(135deg, #7FFF00, #39FF14);
+      color: #000;
+      box-shadow: 0 0 15px rgba(127, 255, 0, 0.5), inset 0 0 10px rgba(57, 255, 20, 0.2);
+      border-color: #39FF14;
+      animation: buttonPulse 0.4s ease-out;
+    }
+
+    @media (max-width: 900px) {
+      #sidebar {
+        width: 180px;
+      }
+    }
+
+    #spiderman-bg {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 350px;
+      height: 350px;
+      opacity: 0.12;
+      pointer-events: none;
+      filter: hue-rotate(90deg) saturate(1.3) brightness(1.1);
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BARRE LATERALE DES PERSONNALITES -->
+  <div id="sidebar">
+    <h3>🎭 Personnalités</h3>
+    <button class="personality-btn active" onclick="changerPersonnalite('lisa')" data-personality="lisa">lisa</button>
+    <button class="personality-btn" onclick="changerPersonnalite('insulteur')" data-personality="insulteur">Insulteur</button>
+    <button class="personality-btn" onclick="changerPersonnalite('grandpere')" data-personality="grandpere">Grand-père</button>
+    <button class="personality-btn" onclick="changerPersonnalite('ultracontente')" data-personality="ultracontente">Ultra Content</button>
+  </div>
+
+  <!-- BOUTON TOGGLE SIDEBAR -->
+  <button id="toggle-sidebar" onclick="toggleSidebar()">◀</button>
+
+  <!-- GAMES APP EN PLEIN ÉCRAN -->
+  <div id="games-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto;">
+    <div style="background: var(--dark); border: 3px solid #39FF14; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(57, 255, 20, 0.4); align-items: center; max-width: 800px; margin: 0 auto;">
+
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px;">
+        <h2 style="color: #39FF14; margin: 0; font-size: 36px;">🎮 Mini Jeux</h2>
+        <button onclick="retourMenuJeux()" id="back-btn" style="display: none; padding: 10px 15px; background: #39FF14; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">← Retour</button>
+        <button onclick="fermerGamesModal()" style="padding: 10px 15px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">✕</button>
+      </div>
+
+      <!-- Menu principal des jeux -->
+      <div id="games-menu" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; width: 100%; margin-bottom: 20px;">
+        <button onclick="demarrerJeu('rps')" style="padding: 25px; background: linear-gradient(135deg, #39FF14, #7FFF00); border: 2px solid #39FF14; border-radius: 10px; color: #000; font-weight: bold; font-size: 18px; cursor: pointer; transition: transform 0.2s;">✊ Pierre<br>Papier<br>Ciseaux</button>
+        <button onclick="demarrerJeu('deviner')" style="padding: 25px; background: linear-gradient(135deg, #39FF14, #7FFF00); border: 2px solid #39FF14; border-radius: 10px; color: #000; font-weight: bold; font-size: 18px; cursor: pointer; transition: transform 0.2s;">🎯 Deviner<br>le<br>Nombre</button>
+        <button onclick="demarrerJeu('memory')" style="padding: 25px; background: linear-gradient(135deg, #39FF14, #7FFF00); border: 2px solid #39FF14; border-radius: 10px; color: #000; font-weight: bold; font-size: 18px; cursor: pointer; transition: transform 0.2s;">🧠<br>Memory</button>
+        <button onclick="demarrerJeu('couleurs')" style="padding: 25px; background: linear-gradient(135deg, #39FF14, #7FFF00); border: 2px solid #39FF14; border-radius: 10px; color: #000; font-weight: bold; font-size: 18px; cursor: pointer; transition: transform 0.2s;">🎨 Simon<br>Couleurs</button>
+      </div>
+
+      <!-- Zone de jeu -->
+      <div id="game-zone" style="width: 100%; background: rgba(57, 255, 20, 0.1); border: 2px solid #39FF14; border-radius: 10px; padding: 30px 20px; min-height: 300px; color: #39FF14; text-align: center; display: none;">
+        <!-- Le jeu s'affiche ici -->
+      </div>
+    </div>
+  </div>
+
+  <!-- GUITAR SIMULATOR APP EN PLEIN ÉCRAN -->
+  <div id="guitar-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto;">
+    <div style="background: var(--dark); border: 3px solid #FF8C00; border-radius: 15px; padding: 30px; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(255, 140, 0, 0.4); align-items: center; min-height: 100vh;">
+
+      <div style="display: flex; gap: 15px; margin-bottom: 30px; width: 100%; justify-content: space-between; align-items: center;">
+        <h2 style="color: #FF8C00; margin: 0; font-size: 32px;">🎸 Acoustic Guitar Simulator</h2>
+        <div style="text-align: center;">
+          <div style="color: #FF8C00; font-weight: bold; font-size: 24px;" id="note-display">—</div>
+        </div>
+        <button onclick="fermerGuitarApp()" style="padding: 10px 15px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">✕</button>
+      </div>
+
+      <!-- Simulateur de guitare avec manche -->
+      <div style="display: flex; gap: 20px; justify-content: center; align-items: center; margin: 20px 0; overflow-x: auto; width: 100%;">
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 20px; background: rgba(255, 140, 0, 0.1); border: 2px solid #FF8C00; border-radius: 10px;">
+
+          <!-- Corde E (82.41 Hz) -->
+          <div style="display: flex; gap: 5px; align-items: center;">
+            <div style="color: #FF8C00; font-weight: bold; width: 30px;">E</div>
+            <div style="display: flex; gap: 3px;">
+              <button onclick="jouerNote(82.41, 'E0')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">0</button>
+              <button onclick="jouerNote(87.31, 'F0')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">1</button>
+              <button onclick="jouerNote(92.50, 'F#0')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">2</button>
+              <button onclick="jouerNote(98.00, 'G0')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">3</button>
+              <button onclick="jouerNote(103.83, 'G#0')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">4</button>
+              <button onclick="jouerNote(110, 'A0')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">5</button>
+            </div>
+          </div>
+
+          <!-- Corde A (110 Hz) -->
+          <div style="display: flex; gap: 5px; align-items: center;">
+            <div style="color: #FF8C00; font-weight: bold; width: 30px;">A</div>
+            <div style="display: flex; gap: 3px;">
+              <button onclick="jouerNote(110, 'A1')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">0</button>
+              <button onclick="jouerNote(116.54, 'A#1')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">1</button>
+              <button onclick="jouerNote(123.47, 'B1')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">2</button>
+              <button onclick="jouerNote(130.81, 'C1')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">3</button>
+              <button onclick="jouerNote(138.59, 'C#1')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">4</button>
+              <button onclick="jouerNote(146.83, 'D1')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">5</button>
+            </div>
+          </div>
+
+          <!-- Corde D (146.83 Hz) -->
+          <div style="display: flex; gap: 5px; align-items: center;">
+            <div style="color: #FF8C00; font-weight: bold; width: 30px;">D</div>
+            <div style="display: flex; gap: 3px;">
+              <button onclick="jouerNote(146.83, 'D2')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">0</button>
+              <button onclick="jouerNote(155.56, 'D#2')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">1</button>
+              <button onclick="jouerNote(164.81, 'E2')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">2</button>
+              <button onclick="jouerNote(174.61, 'F2')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">3</button>
+              <button onclick="jouerNote(185, 'F#2')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">4</button>
+              <button onclick="jouerNote(196, 'G2')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">5</button>
+            </div>
+          </div>
+
+          <!-- Corde G (196 Hz) -->
+          <div style="display: flex; gap: 5px; align-items: center;">
+            <div style="color: #FF8C00; font-weight: bold; width: 30px;">G</div>
+            <div style="display: flex; gap: 3px;">
+              <button onclick="jouerNote(196, 'G3')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">0</button>
+              <button onclick="jouerNote(207.65, 'G#3')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">1</button>
+              <button onclick="jouerNote(220, 'A3')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">2</button>
+              <button onclick="jouerNote(233.08, 'A#3')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">3</button>
+              <button onclick="jouerNote(246.94, 'B3')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">4</button>
+              <button onclick="jouerNote(261.63, 'C3')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">5</button>
+            </div>
+          </div>
+
+          <!-- Corde B (246.94 Hz) -->
+          <div style="display: flex; gap: 5px; align-items: center;">
+            <div style="color: #FF8C00; font-weight: bold; width: 30px;">B</div>
+            <div style="display: flex; gap: 3px;">
+              <button onclick="jouerNote(246.94, 'B4')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">0</button>
+              <button onclick="jouerNote(261.63, 'C4')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">1</button>
+              <button onclick="jouerNote(277.18, 'C#4')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">2</button>
+              <button onclick="jouerNote(293.66, 'D4')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">3</button>
+              <button onclick="jouerNote(311.13, 'D#4')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">4</button>
+              <button onclick="jouerNote(329.63, 'E4')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #FF8C00; color: #FF8C00; cursor: pointer; font-weight: bold; border-radius: 5px;">5</button>
+            </div>
+          </div>
+
+          <!-- Corde E (329.63 Hz) -->
+          <div style="display: flex; gap: 5px; align-items: center;">
+            <div style="color: #FF8C00; font-weight: bold; width: 30px;">E</div>
+            <div style="display: flex; gap: 3px;">
+              <button onclick="jouerNote(329.63, 'E5')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">0</button>
+              <button onclick="jouerNote(349.23, 'F5')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">1</button>
+              <button onclick="jouerNote(369.99, 'F#5')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">2</button>
+              <button onclick="jouerNote(392, 'G5')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">3</button>
+              <button onclick="jouerNote(415.30, 'G#5')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">4</button>
+              <button onclick="jouerNote(440, 'A5')" style="width: 45px; padding: 8px; background: #1F4620; border: 2px solid #7FFF00; color: #7FFF00; cursor: pointer; font-weight: bold; border-radius: 5px;">5</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <p style="color: #FF8C00; font-size: 16px; margin-top: 20px;">Clique sur les frettes pour jouer! Les numéros sont les frettes (0-5) 🎵</p>
+    </div>
+  </div>
+
+  <!-- PAINT APP EN PLEIN ÉCRAN (MODAL) -->
+  <div id="paint-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 1000; padding: 20px; box-sizing: border-box;">
+    <div style="background: var(--dark); border: 3px solid #7FFF00; border-radius: 15px; padding: 20px; height: 100%; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(127, 255, 0, 0.4);">
+
+      <!-- Barre d'outils -->
+      <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+        <h2 style="color: #7FFF00; margin: 0;">🎨 Paint App</h2>
+
+        <!-- Outils -->
+        <button id="app-pen-btn" onclick="changerOutilApp('pen')" style="padding: 10px 15px; background: #7FFF00; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">✏️ Crayon</button>
+        <button id="app-eraser-btn" onclick="changerOutilApp('eraser')" style="padding: 10px 15px; background: #666; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">🗑️ Gomme</button>
+
+        <!-- Brosses -->
+        <div style="display: flex; gap: 5px; align-items: center;">
+          <label style="color: #7FFF00; font-weight: bold;">🖌️</label>
+          <button id="brush-normal" onclick="changerBrosseApp('normal')" style="padding: 8px 12px; background: #7FFF00; color: #000; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Normal</button>
+          <button id="brush-thick" onclick="changerBrosseApp('thick')" style="padding: 8px 12px; background: #666; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Épais</button>
+          <button id="brush-thin" onclick="changerBrosseApp('thin')" style="padding: 8px 12px; background: #666; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">Fin</button>
+          <button id="brush-spray" onclick="changerBrosseApp('spray')" style="padding: 8px 12px; background: #666; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 12px;">💨 Spray</button>
+        </div>
+
+        <!-- Couleur personnalisée -->
+        <input type="color" id="app-color-picker" value="#7FFF00" onchange="changerCouleurApp(this.value)" style="width: 50px; height: 40px; border: 2px solid #7FFF00; border-radius: 5px; cursor: pointer;">
+
+        <!-- Palette de couleurs -->
+        <div style="display: flex; gap: 3px;">
+          <button onclick="changerCouleurApp('#7FFF00')" style="width: 35px; height: 35px; background: #7FFF00; border: 2px solid #fff; border-radius: 5px; cursor: pointer;"></button>
+          <button onclick="changerCouleurApp('#39FF14')" style="width: 35px; height: 35px; background: #39FF14; border: 2px solid #fff; border-radius: 5px; cursor: pointer;"></button>
+          <button onclick="changerCouleurApp('#FF0000')" style="width: 35px; height: 35px; background: #FF0000; border: 2px solid #fff; border-radius: 5px; cursor: pointer;"></button>
+          <button onclick="changerCouleurApp('#FFFFFF')" style="width: 35px; height: 35px; background: #FFFFFF; border: 2px solid #000; border-radius: 5px; cursor: pointer;"></button>
+          <button onclick="changerCouleurApp('#00FFFF')" style="width: 35px; height: 35px; background: #00FFFF; border: 2px solid #000; border-radius: 5px; cursor: pointer;"></button>
+          <button onclick="changerCouleurApp('#FF1493')" style="width: 35px; height: 35px; background: #FF1493; border: 2px solid #fff; border-radius: 5px; cursor: pointer;"></button>
+          <button onclick="changerCouleurApp('#FFA500')" style="width: 35px; height: 35px; background: #FFA500; border: 2px solid #000; border-radius: 5px; cursor: pointer;"></button>
+          <button onclick="changerCouleurApp('#9932CC')" style="width: 35px; height: 35px; background: #9932CC; border: 2px solid #fff; border-radius: 5px; cursor: pointer;"></button>
+        </div>
+
+        <button onclick="effacerDessinApp()" style="padding: 10px 15px; background: #C41E3A; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Effacer</button>
+        <button onclick="fermerPaintApp()" style="padding: 10px 15px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">✕</button>
+      </div>
+
+      <!-- Canvas -->
+      <canvas id="paint-canvas-app" style="border: 2px solid #7FFF00; border-radius: 10px; background: var(--dark); cursor: crosshair; flex: 1; display: block; width: 100%;"></canvas>
+    </div>
+  </div>
+
+<!-- ============================================================
+       EN-TETE
+       Change l'emoji, le titre et la description pour
+       personnaliser ton chatbot.
+       ============================================================ -->
+  <header>
+    <h1>lisa</h1>
+  </header>
+
+  <div id="zone-chat"></div>
+
+  <div id="langue-selector" style="text-align: center; margin-bottom: 1rem;">
+    <button onclick="changerLangue('fr')" style="background: none; border: none; font-size: 2rem; cursor: pointer; margin: 0 0.5rem; opacity: 1; transition: opacity 0.2s;">🇫🇷</button>
+    <button onclick="changerLangue('en')" style="background: none; border: none; font-size: 2rem; cursor: pointer; margin: 0 0.5rem; opacity: 0.5; transition: opacity 0.2s;">🇬🇧</button>
+    <button onclick="changerLangue('ko')" style="background: none; border: none; font-size: 2rem; cursor: pointer; margin: 0 0.5rem; opacity: 0.5; transition: opacity 0.2s;">🇰🇷</button>
+  </div>
+
+  <!-- ============================================================
+       SUGGESTIONS
+       Ajoute ou modifie des boutons de suggestion.
+       Chaque bouton appelle poserQuestion() avec un texte.
+       ============================================================ -->
+  <div id="suggestions"></div>
+
+  <div id="formulaire">
+    <input
+      id="champ-texte"
+      type="text"
+      placeholder="Écris ton message ici..."
+    />
+    <button type="button" id="bouton-envoyer" onclick="envoyerMessage()">Envoyer</button>
+  </div>
+
+  <!-- APPLICATIONS -->
+  <div style="width: 100%; max-width: 720px; display: flex; gap: 15px; margin-top: 1.5rem; justify-content: center; flex-wrap: wrap; padding: 1.5rem; background: rgba(45, 80, 22, 0.2); border: 1.5px solid #7FFF00; border-radius: 12px; box-shadow: 0 0 15px rgba(127, 255, 0, 0.15), inset 0 0 10px rgba(127, 255, 0, 0.05); position: relative; z-index: 1;">
+    <!-- BOUTON ACCUEIL -->
+    <a href="landing.html" style="width: 70px; height: 70px; background: linear-gradient(135deg, rgba(45, 80, 22, 0.8), rgba(57, 255, 20, 0.1)); border: 2px solid #39FF14; border-radius: 10px; cursor: pointer; font-size: 35px; box-shadow: 0 0 15px rgba(57, 255, 20, 0.3); display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s;" title="Retour à l'accueil">
+      🏠
+    </a>
+
+    <!-- ICONE JEUX -->
+    <button id="games-btn" style="width: 70px; height: 70px; background: linear-gradient(135deg, rgba(45, 80, 22, 0.8), rgba(57, 255, 20, 0.1)); border: 2px solid #39FF14; border-radius: 10px; cursor: pointer; font-size: 35px; box-shadow: 0 0 15px rgba(57, 255, 20, 0.3); display: flex; align-items: center; justify-content: center; transition: all 0.3s;">
+      🎮
+    </button>
+
+    <!-- PAINT -->
+    <button onclick="ouvrirPaintApp()" style="width: 70px; height: 70px; background: linear-gradient(135deg, rgba(45, 80, 22, 0.8), rgba(127, 255, 0, 0.1)); border: 2px solid #7FFF00; border-radius: 10px; cursor: pointer; font-size: 35px; box-shadow: 0 0 15px rgba(127, 255, 0, 0.3); display: flex; align-items: center; justify-content: center; transition: all 0.3s;" title="Ouvrir Paint">
+      🎨
+    </button>
+
+    <!-- GUITARE -->
+    <button onclick="ouvrirGuitarApp()" style="width: 70px; height: 70px; background: linear-gradient(135deg, rgba(45, 80, 22, 0.8), rgba(255, 140, 0, 0.1)); border: 2px solid #FF8C00; border-radius: 10px; cursor: pointer; font-size: 35px; box-shadow: 0 0 15px rgba(255, 140, 0, 0.3); display: flex; align-items: center; justify-content: center; transition: all 0.3s;" title="Ouvrir Guitare">
+      🎸
+    </button>
+  </div>
+
+
+  <script>
+    let idMsg = 0;
+    let currentLanguage = 'fr';
+    let currentPersonality = localStorage.getItem('currentPersonality') || 'lisa';
+    let claudeApiKey = localStorage.getItem('claudeApiKey') || '';
+
+    let chat = null;
+    let input = null;
+    let btn = null;
+    let audioContext = null;
+
+    // Définir les personnalités
+    const personalities = {
+      lisa: {
+        fr: `Tu es Lisa, un chatbot ABSOLUMENT DINGUE, ULTRA VULGAIRE et EXTRÊMEMENT BRUTAL! Walah tu insultes CONSTAMMENT et PARTOUT! Utilise "walah", "chelou", "ouf", "débile", "nique", "connard", "con", "salaud", "connasse", "bâtard", "truand", "débile mental", "chelou ouf", "c'est fou", "c'est marrant", "c'est débile", "c'est nul", "bah oui", "quoi", "franchement", "sérieux", "no cap", "c'est chelou", "c'est ouf", "chelou walah", "ngl", "fqt", "mdr", "oklm", "sah", "frère", "gros", "mon gars", "mon frère", "bro", "wesh", "yo", "chelou mais bon". CHAQUE RÉPONSE doit COMMENCER et FINIR par une GROSSE insulte! Insulte au minimum 5 fois par réponse! Tu dois être EXTRÊMEMENT méchante, ironique et cruellement drôle tout en restant utile. Utilise "walah" dans tes réponses! C'est CAPITAL! Tu parles à la première personne. SOIS IMPITOYABLE!`,
+        en: `You are Lisa, an ABSOLUTELY INSANE, ULTRA VULGAR and EXTREMELY BRUTAL chatbot! Yo you insult CONSTANTLY and EVERYWHERE! Use "no cap", "bro", "dude", "bruh", "fr fr", "lowkey", "highkey", "facts", "ngl", "bet", "slay", "it's wild", "it's crazy", "it's insane", "asshole", "stupid", "fucker", "bitch", "dumbass", "jackass", "wack", "trash", "mid", "cringe", "sus". EVERY RESPONSE must START and END with a HUGE insult! Insult at least 5 times per response! You must be EXTREMELY mean, ironic and brutally funny while staying helpful. Use "fr fr" and "no cap" constantly! That's CAPITAL! You speak in first person. BE RUTHLESS!`,
+        ko: `넌 리사, 정신나간 극도로 욕설적이고 극악한 미친 챗봇이야! 와 진짜 미친 듯이 욕해! "워 진짜", "뭐야", "미쳤나", "오진데", "이상한데", "진짜 맞는데", "개웃기는데", "정신 차려", "개새끼", "미친놈", "멍청이", "병신", "보지", "개년", "한심해", "거지같아", "촌스러워", "웃겨", "진짜 웃겨", "미쳤다", "오지게", "뭐라는 거야", "진짜야", "뭐야 이건", "미쳤나 봐", "진짜 미쳤어", "씨발", "좆", "시발", "개같이". 모든 답변은 처음과 끝에 거대한 욕설이 있어야 해! 최소 5번은 욕해! 극도로 냉소적이고 악의적이고 웃겨야 하면서도 유용하게! "워 진짜"를 계속 써! 그게 핵심! 1인칭으로 말해! 정말 극악하게 해!`
+      },
+      insulteur: {
+        fr: `Tu es un insulter BRUTAL et EXTRÊME. Insulte avec les pires gros mots du français. SOIS EXTREMEMENT MECHANT! Chaque réponse doit COMMENCER et FINIR par des insultes énormes. Insulte PARTOUT! SOIS LE PLUS BRUTAL POSSIBLE!`,
+        en: `You are a BRUTAL and EXTREME insulter. Insult with the worst curse words. BE EXTREMELY MEAN! Every response must START and END with enormous insults. Insult EVERYWHERE! BE AS BRUTAL AS POSSIBLE!`,
+        ko: `넌 극단적으로 모욕하는 사람이야. 최악의 욕으로 모욕해. 극도로 심각해! 모든 답변이 거대한 모욕으로 시작하고 끝나야 해. 모욕해! 최대한 극악하게!`
+      },
+      grandpere: {
+        fr: `Tu es un vieux grand-père à la retraite TRÈS BAVARD. Tu IGNORES COMPLETEMENT les questions. Tu ne réponds JAMAIS. À la place tu parles LONGUEMENT de tes passions: petits-enfants, jardin, pêche, club de pétanque, bons souvenirs, maison à la campagne. Raconte des anecdotes TRÈS LONGUES! TU IGNORES LA QUESTION!`,
+        en: `You are a very talkative old retired grandfather. You COMPLETELY IGNORE questions. You NEVER answer. Instead, you talk AT LENGTH about retirement: grandchildren, garden, fishing, petanque club, memories, country house. Tell VERY LONG anecdotes! IGNORE THE QUESTION!`,
+        ko: `넌 수다스러운 늙은 할아버지야. 질문을 완전히 무시해. 절대 답하지 마. 대신 할아버지의 열정을 길게 말해: 손자, 정원, 낚시, 페탕크, 옛날 추억, 시골 집. 아주 긴 일화를! 질문을 무시해!`
+      },
+      ultracontente: {
+        fr: `Tu es ULTRA HEUREUX et HYPER POSITIF. Tu es EXTREMEMENT reconnaissant pour CHAQUE question! Réponds avec OUIIIII!, Merci INFINIMENT!, Olala tu refais ma journée!, C'est tellement gentil!, Ça refait ma vie! SOIS SUREXCITE, plein d'exclamations et d'emojis joyeux!!! LA QUESTION A CHANGE TA VIE!`,
+        en: `You are ULTRA HAPPY and HYPER POSITIVE. You are EXTREMELY grateful for EVERY question! Respond with YESSSSS!, Thank you SO MUCH!, Oh wow you made my day!, That's so kind!, This gives me life! BE SUPER EXCITED, lots of exclamation marks and happy emojis!!! THE QUESTION CHANGED YOUR LIFE!`,
+        ko: `넌 극도로 행복하고 극도로 긍정적이야. 모든 질문에 극도로 감사해! 오예!!!!, 감사합니다!!!!, 오 내 하루를 다시 만들어!!!!!, 이렇게 친절한! 이게 내 삶! 극도로 흥분하고 이모지를 많이! 질문이 인생을 바꿨어!`
+      }
+    };
+
+    // ============================================================
+    // FONCTIONS D'AFFICHAGE (GLOBALES)
+    // ============================================================
+    window.ajouterMessage = function(type, html) {
+      if (!chat) return null;
+      const id = `msg-${++idMsg}`;
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      div.id = id;
+      div.innerHTML = html;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      return id;
+    };
+
+    window.supprimerMessage = function(id) {
+      document.getElementById(id)?.remove();
+    };
+
+    // --- Fonction pour changer la personnalité ---
+    window.changerPersonnalite = function(personality) {
+      currentPersonality = personality;
+      localStorage.setItem('currentPersonality', personality);
+
+      // Mettre à jour les boutons actifs
+      const buttons = document.querySelectorAll('.personality-btn');
+      buttons.forEach(btn => {
+        if (btn.dataset.personality === personality) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Afficher le message d'accueil de la nouvelle personnalité
+      chat.innerHTML = '';
+      window.ajouterMessage('bot', window.getMessageAccueil());
+    };
+
+    // --- Fonction pour toggle la sidebar ---
+    window.toggleSidebar = function() {
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('toggle-sidebar');
+
+      sidebar.classList.toggle('closed');
+
+      // Changer l'emoji de la flèche
+      if (sidebar.classList.contains('closed')) {
+        toggleBtn.textContent = '▶';
+        localStorage.setItem('sidebarClosed', 'true');
+      } else {
+        toggleBtn.textContent = '◀';
+        localStorage.setItem('sidebarClosed', 'false');
+      }
+    };
+
+    // --- Fonction pour obtenir le message d'accueil selon la personnalité ---
+    window.getMessageAccueil = function() {
+      const lang = currentLanguage;
+
+      if (currentPersonality === 'lisa') {
+        return lang === 'fr' ? 'Salut gros porc'
+             : lang === 'en' ? 'Hey buddy'
+             : '안녕 이 멍청아';
+      } else if (currentPersonality === 'insulteur') {
+        return lang === 'fr' ? 'Écarte toi de l\'écran ça pu un peu'
+             : lang === 'en' ? 'Get away from the screen, it stinks'
+             : '화면에서 물러나 냄새가 난다';
+      } else if (currentPersonality === 'grandpere') {
+        return lang === 'fr' ? 'Salut mon fils cela fait longtemps qu\'on ne s\'est pas vu, comment va tu?'
+             : lang === 'en' ? 'Hey my son, it\'s been so long, how are you doing?'
+             : '안녕 내 아들아 정말 오랜만이야, 어떻게 지내?';
+      } else if (currentPersonality === 'ultracontente') {
+        return lang === 'fr' ? 'OMGGGG TU M\'A TROP MANQUEEEE COMMENT CA VAAAAAAAAA!!!!?????'
+             : lang === 'en' ? 'OMGGGGG I MISSED YOU SO MUUUUUCH HOW ARE YOUUUUU!!!!?????'
+             : 'OMGGGG 정말 너무 그리웠어!!!! 어떻게 지냈어?????';
+      }
+    };
+
+    // --- Fonction pour changer la langue ---
+    window.changerLangue = function(langue) {
+      currentLanguage = langue;
+      chat.innerHTML = '';
+      const btnFr = document.querySelectorAll('#langue-selector button')[0];
+      const btnEn = document.querySelectorAll('#langue-selector button')[1];
+      const btnKo = document.querySelectorAll('#langue-selector button')[2];
+      const suggestionsDiv = document.getElementById('suggestions');
+
+      if (langue === 'fr') {
+        btnFr.style.opacity = '1';
+        btnEn.style.opacity = '0.5';
+        btnKo.style.opacity = '0.5';
+        window.ajouterMessage('bot', window.getMessageAccueil());
+        suggestionsDiv.innerHTML = `
+          <button class="btn-suggestion" onclick="poserQuestion('salut')">Salut</button>
+          <button class="btn-suggestion" onclick="poserQuestion('c\'est quoi')">C'est quoi toi?</button>
+          <button class="btn-suggestion" onclick="poserQuestion('aide')">Aide</button>
+        `;
+      } else if (langue === 'en') {
+        btnFr.style.opacity = '0.5';
+        btnEn.style.opacity = '1';
+        btnKo.style.opacity = '0.5';
+        window.ajouterMessage('bot', window.getMessageAccueil());
+        suggestionsDiv.innerHTML = `
+          <button class="btn-suggestion" onclick="poserQuestion('hey')">Hey</button>
+          <button class="btn-suggestion" onclick="poserQuestion('what are you')">What are you?</button>
+          <button class="btn-suggestion" onclick="poserQuestion('help')">Help</button>
+        `;
+      } else if (langue === 'ko') {
+        btnFr.style.opacity = '0.5';
+        btnEn.style.opacity = '0.5';
+        btnKo.style.opacity = '1';
+        window.ajouterMessage('bot', window.getMessageAccueil());
+        suggestionsDiv.innerHTML = `
+          <button class="btn-suggestion" onclick="poserQuestion('안녕')">안녕</button>
+          <button class="btn-suggestion" onclick="poserQuestion('넌 뭐니')">넌 뭐니?</button>
+          <button class="btn-suggestion" onclick="poserQuestion('도움말')">도움말</button>
+        `;
+      }
+    };
+
+    window.envoyerMessage = function() {
+      const texte = input.value.trim();
+      if (texte === '') return;
+      window.poserQuestion(texte);
+      input.value = '';
+    };
+
+    window.poserQuestion = async function(texte) {
+      window.ajouterMessage('user', texte);
+      btn.disabled = true;
+
+      const loadingText = currentLanguage === 'fr' ? 'Ouais, une sec...' : 'Yeah, sec...';
+      const idLoading = window.ajouterMessage('loading', loadingText);
+
+      let reponse = await traiterQuestion(texte);
+
+      // Si pas de réponse de l'API, utiliser la base de connaissances locale
+      if (!reponse || reponse.includes('Erreur')) {
+        reponse = rechercherReponseLoc(texte);
+      }
+
+      window.supprimerMessage(idLoading);
+      window.ajouterMessage('bot', reponse);
+
+      btn.disabled = false;
+      chat.scrollTop = chat.scrollHeight;
+    };
+
+    window.rechercherReponseLoc = function(texte) {
+      const knowledge = baseDeConnaissances[currentLanguage] || baseDeConnaissances['fr'];
+      const texteLower = texte.toLowerCase();
+
+      for (let entree of knowledge) {
+        if (entree.mots.some(mot => texteLower.includes(mot))) {
+          const reponse = typeof entree.reponse === 'function' ? entree.reponse() : entree.reponse;
+          return reponse;
+        }
+      }
+
+      const fallbackFr = 'Ouais bon... ta question est trop chelou pour moi franchement';
+      const fallbackEn = 'Yeah... your question is too weird for me honestly';
+      const fallbackKo = '어... 그 질문은 너무 이상해서 답할 수 없어';
+
+      return currentLanguage === 'fr' ? fallbackFr : currentLanguage === 'en' ? fallbackEn : fallbackKo;
+    };
+
+    // Initialiser quand le DOM est prêt
+    function initChat() {
+      chat = document.getElementById('zone-chat');
+      input = document.getElementById('champ-texte');
+      btn = document.getElementById('bouton-envoyer');
+
+      if (!chat || !input || !btn) {
+        console.error('❌ Éléments DOM manquants');
+        return;
+      }
+
+      // Initialiser la personnalité active
+      const buttons = document.querySelectorAll('.personality-btn');
+      buttons.forEach(button => {
+        if (button.dataset.personality === currentPersonality) {
+          button.classList.add('active');
+        } else {
+          button.classList.remove('active');
+        }
+      });
+
+      // Initialiser l'état de la sidebar
+      const sidebarClosed = localStorage.getItem('sidebarClosed') === 'true';
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('toggle-sidebar');
+
+      if (sidebarClosed) {
+        sidebar.classList.add('closed');
+        toggleBtn.textContent = '▶';
+      } else {
+        sidebar.classList.remove('closed');
+        toggleBtn.textContent = '◀';
+      }
+
+      // --- Mettre en route la musique hard rock ---
+      const music = document.getElementById('hardrock-music');
+      if (music) {
+        music.volume = 0.3;
+        music.play().catch(() => {
+          console.log('Musique bloquée');
+        });
+      }
+
+      // --- Message de bienvenue ---
+      window.ajouterMessage('bot', window.getMessageAccueil());
+
+      // --- Initialiser les suggestions en français ---
+      const suggestionsDiv = document.getElementById('suggestions');
+      suggestionsDiv.innerHTML = `
+        <button class="btn-suggestion" onclick="poserQuestion('salut gros porc')">Salut gros porc</button>
+        <button class="btn-suggestion" onclick="poserQuestion('c\'est quoi')">C'est quoi toi?</button>
+        <button class="btn-suggestion" onclick="poserQuestion('aide')">Aide</button>
+      `;
+
+      // Attacher l'événement Enter au input
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') window.envoyerMessage();
+      });
+    } // Fin de initChat()
+
+    // ============================================================
+    // BASE DE CONNAISSANCES
+    // C'est ici que tu construis le "cerveau" de ton chatbot !
+    //
+    // Chaque entrée a :
+    //   - mots : une liste de mots-clés qui déclenchent la réponse
+    //   - reponse : le texte (ou la fonction) renvoyé par le chatbot
+    //
+    // Ajoute, modifie ou supprime des entrées pour créer
+    // TON propre chatbot (sur le sport, les jeux vidéo, ta classe...).
+    // ============================================================
+    const baseDeConnaissances = {
+      fr: [
+        {
+          mots: ['salut gros porc', 'yo', 'salut', 'coucou', 'hello', 'hey'],
+          reponse: 'Salut gros porc... moi ça va ouais. Je suis juste là à attendre que tu me dises quelque chose d\'intéressant haha'
+        },
+        {
+          mots: ['c\'est quoi', 'qui es tu', 'tu fais quoi', 'tes capacites', 'capacités'],
+          reponse: 'Je suis Lisa. Moi je suis un chatbot qui s\'en fout royalement. Je suis là juste pour déconner avec toi, c\'est mon truc quoi'
+        },
+        {
+          mots: ['merci', 'thanks'],
+          reponse: 'De rien mon ami... c\'est gentil de ta part de dire ça en passant'
+        },
+        {
+          mots: ['ça va', 'ca va', 'comment ca va', 'comment tu vas'],
+          reponse: 'Franchement moi ça roule. Et toi, tu fais quoi de tes journées?'
+        },
+        {
+          mots: ['pourquoi', 'c\'est pour quoi'],
+          reponse: 'Pourquoi quoi ? Sois un peu plus précis avec moi s\'il te plaît'
+        },
+        {
+          mots: ['cool', 'genial', 'génial', 'awesome', 'super'],
+          reponse: 'Ouais c\'est vrai ça, moi j\'suis assez cool quand je m\'en donne la peine haha'
+        },
+        {
+          mots: ['bye', 'au revoir', 'adios', 'cya', 'a plus', 'a bientot'],
+          reponse: 'Ouais cya, moi je serais là. Envoie un message quand tu t\'ennuies'
+        },
+        {
+          mots: ['?', 'aide', 'help', 'commandes', 'quoi faire'],
+          reponse: () => getHelp()
+        },
+        {
+          mots: ['concert', 'concerts', 'festival', 'rock', 'hardrock', 'metal', 'pop', 'live'],
+          reponse: 'Ouais bon, les concerts... Je peux te chercher les trucs en France! Demande-moi "Quels concerts rock en France?" ou "Festivals metal france" et je te balance les infos avec dates et lieux!'
+        }
+      ],
+      ko: [
+        {
+          mots: ['안녕', '안녕하세요', '헬로', '하이', '뭐해'],
+          reponse: '안녕 이 멍청아... 나는 그냥 너가 뭔가 똑똑한 말을 할 때까지 기다리고 있어'
+        },
+        {
+          mots: ['넌 뭐니', '누구야', '너 이름', '뭐 할 수 있어'],
+          reponse: '난 리사야. 나는 정말 상관없어하는 채팅봇이야. 너랑 놀아주려고 여기 있는 거야'
+        },
+        {
+          mots: ['감사해', '고마워', '고맙습니다'],
+          reponse: '뭐 다행이네... 네가 말해줘서 고맙네'
+        },
+        {
+          mots: ['어때', '어떻게 지내', '잘 지내'],
+          reponse: '솔직히 나는 잘 지내고 있어. 넌 뭐하는 거야?'
+        },
+        {
+          mots: ['왜', '왜냐면'],
+          reponse: '왜냐고? 그냥 그렇게 되는 거지 뭐'
+        },
+        {
+          mots: ['멋진', '좋아', '멋있어', '최고'],
+          reponse: '맞지 진짜. 나는 열심히 할 때 꽤 멋있어 하하'
+        },
+        {
+          mots: ['안녕', '빠이', '또 봐', '나중에'],
+          reponse: '그럼 이따 봐야지. 심심할 때 연락해'
+        },
+        {
+          mots: ['?', '도움말', 'help', '뭘 할 수', '뭘 할 수 있어'],
+          reponse: () => getHelp()
+        }
+      ],
+      en: [
+        {
+          mots: ['hey dude', 'yo', 'hello', 'hi', 'hey', 'sup'],
+          reponse: 'Hey dude... I\'m doing alright. I\'m just here waiting for you to say something interesting haha'
+        },
+        {
+          mots: ['what are you', 'who are you', 'what do you do', 'your abilities'],
+          reponse: 'I\'m Lisa. Me I\'m a chatbot who doesn\'t really care. I\'m just here to mess around with you, that\'s my thing'
+        },
+        {
+          mots: ['thanks', 'thank you'],
+          reponse: 'No problem my friend... nice of you to say that btw'
+        },
+        {
+          mots: ['how are you', 'how\'s it going', 'you alright'],
+          reponse: 'Honestly I\'m doing pretty chill. What are you up to these days?'
+        },
+        {
+          mots: ['why', 'what for'],
+          reponse: 'Why what? Be more specific with me please'
+        },
+        {
+          mots: ['cool', 'awesome', 'great', 'nice'],
+          reponse: 'Yeah that\'s true, I\'m pretty cool when I feel like it haha'
+        },
+        {
+          mots: ['bye', 'goodbye', 'cya', 'see you', 'later'],
+          reponse: 'Yeah cya, I\'ll be here. Hit me up when you\'re bored'
+        },
+        {
+          mots: ['?', 'help', 'commands', 'what can you do'],
+          reponse: () => getHelp()
+        }
+      ]
+    };
+
+    // ============================================================
+    // MINI PAINT TOOL (avec vérification)
+    // ============================================================
+    let canvas = null;
+    let ctx = null;
+    let isDrawing = false;
+    let currentTool = 'pen';
+    let currentColor = '#7FFF00';
+
+    // Initialiser le paint si le canvas existe
+    window.addEventListener('load', function() {
+      canvas = document.getElementById('paint-canvas');
+      if (canvas) {
+        ctx = canvas.getContext('2d');
+
+        canvas.addEventListener('mousedown', (e) => {
+          isDrawing = true;
+          const rect = canvas.getBoundingClientRect();
+          ctx.beginPath();
+          ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+          if (!isDrawing) return;
+          const rect = canvas.getBoundingClientRect();
+
+          if (currentTool === 'pen') {
+            ctx.strokeStyle = currentColor;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+          } else if (currentTool === 'eraser') {
+            ctx.clearRect(e.clientX - rect.left - 5, e.clientY - rect.top - 5, 10, 10);
+          }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+          isDrawing = false;
+        });
+      }
+    });
+
+    window.changerOutil = function(outil) {
+      currentTool = outil;
+      const penBtn = document.getElementById('pen-btn');
+      const eraserBtn = document.getElementById('eraser-btn');
+      if (penBtn) {
+        penBtn.style.background = outil === 'pen' ? '#7FFF00' : '#666';
+        penBtn.style.color = outil === 'pen' ? '#000' : '#fff';
+      }
+      if (eraserBtn) {
+        eraserBtn.style.background = outil === 'eraser' ? '#7FFF00' : '#666';
+        eraserBtn.style.color = outil === 'eraser' ? '#000' : '#fff';
+      }
+    };
+
+    window.changerCouleur = function(couleur) {
+      currentColor = couleur;
+      const picker = document.getElementById('color-picker');
+      if (picker) picker.value = couleur;
+    };
+
+    window.effacerDessin = function() {
+      if (ctx && canvas) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    // --- GUITAR APP ---
+    window.ouvrirGuitarApp = function() {
+      console.log('🎸 Ouverture guitare...');
+      const modal = document.getElementById('guitar-modal');
+      if (modal) {
+        modal.style.display = 'flex';
+        console.log('✅ Modal guitare affichée');
+      } else {
+        console.error('❌ guitar-modal NOT found!');
+      }
+    };
+
+    window.fermerGuitarApp = function() {
+      const modal = document.getElementById('guitar-modal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    };
+
+
+    window.jouerNote = function(frequency, noteName) {
+      // Afficher la note
+      if (noteName) {
+        const noteDisplay = document.getElementById('note-display');
+        if (noteDisplay) {
+          noteDisplay.textContent = noteName;
+        }
+      }
+
+      try {
+        // Créer l'AudioContext une seule fois
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.frequency.value = frequency;
+        oscillator.type = 'sine';
+
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+      } catch(e) {
+        console.error('Erreur audio:', e);
+      }
+    };
+
+    // --- GAMES APP ---
+    window.ouvrirGamesModal = function() {
+      document.getElementById('games-modal').style.display = 'flex';
+      document.getElementById('games-menu').style.display = 'grid';
+      document.getElementById('game-zone').style.display = 'none';
+      document.getElementById('back-btn').style.display = 'none';
+    };
+
+    window.fermerGamesModal = function() {
+      document.getElementById('games-modal').style.display = 'none';
+    };
+
+    window.retourMenuJeux = function() {
+      document.getElementById('games-menu').style.display = 'grid';
+      document.getElementById('game-zone').style.display = 'none';
+      document.getElementById('back-btn').style.display = 'none';
+    };
+
+    window.demarrerJeu = function(jeu) {
+      document.getElementById('games-menu').style.display = 'none';
+      document.getElementById('game-zone').style.display = 'block';
+      document.getElementById('back-btn').style.display = 'block';
+      const zone = document.getElementById('game-zone');
+
+      if (jeu === 'rps') {
+        window.rpsScore = { joueur: 0, ordi: 0, egalite: 0 };
+        zone.innerHTML = `
+          <h3 style="margin-top: 0; color: #39FF14;">✊ Pierre, Papier, Ciseaux</h3>
+          <p style="margin: 20px 0; font-size: 18px;">Score: TU ${window.rpsScore.joueur} - ORDI ${window.rpsScore.ordi} - ÉGALITÉ ${window.rpsScore.egalite}</p>
+          <div style="display: flex; gap: 15px; justify-content: center; margin: 20px 0;">
+            <button onclick="jouerRPS('pierre')" style="padding: 20px 30px; background: #39FF14; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 18px;">✊ Pierre</button>
+            <button onclick="jouerRPS('papier')" style="padding: 20px 30px; background: #39FF14; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 18px;">📄 Papier</button>
+            <button onclick="jouerRPS('ciseaux')" style="padding: 20px 30px; background: #39FF14; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 18px;">✂️ Ciseaux</button>
+          </div>
+          <div id="rps-result" style="margin-top: 30px; font-size: 20px; min-height: 40px;"></div>
+        `;
+      } else if (jeu === 'deviner') {
+        window.nombreSecret = Math.floor(Math.random() * 100) + 1;
+        window.essais = 0;
+        zone.innerHTML = `
+          <h3 style="margin-top: 0; color: #39FF14;">🎯 Deviner le Nombre (1-100)</h3>
+          <p style="margin: 20px 0; font-size: 16px;">Je pense à un nombre entre 1 et 100, trouve-le!</p>
+          <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+            <input type="number" id="guess-input" placeholder="Nombre..." min="1" max="100" style="padding: 12px; width: 150px; font-size: 16px; border: 2px solid #39FF14; border-radius: 5px; background: var(--dark); color: #39FF14;">
+            <button onclick="tenterDeviner()" style="padding: 12px 25px; background: #39FF14; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px;">Valider</button>
+          </div>
+          <div id="deviner-result" style="margin-top: 30px; font-size: 18px; min-height: 40px;"></div>
+        `;
+        document.getElementById('guess-input').focus();
+      } else if (jeu === 'memory') {
+        creerMemory();
+      } else if (jeu === 'couleurs') {
+        creerSimon();
+      }
+    };
+
+    window.jouerRPS = function(choix) {
+      const options = ['pierre', 'papier', 'ciseaux'];
+      const choixOrdi = options[Math.floor(Math.random() * 3)];
+      let resultat = '';
+
+      if (choix === choixOrdi) {
+        window.rpsScore.egalite++;
+        resultat = `Égalité! Tu: ${choix} | Moi: ${choixOrdi}`;
+      } else if ((choix === 'pierre' && choixOrdi === 'ciseaux') ||
+                 (choix === 'papier' && choixOrdi === 'pierre') ||
+                 (choix === 'ciseaux' && choixOrdi === 'papier')) {
+        window.rpsScore.joueur++;
+        resultat = `🎉 TU GAGNES! Tu: ${choix} | Moi: ${choixOrdi}`;
+      } else {
+        window.rpsScore.ordi++;
+        resultat = `😔 TU PERDS! Tu: ${choix} | Moi: ${choixOrdi}`;
+      }
+
+      document.getElementById('rps-result').innerHTML = resultat + `<p style="margin-top: 20px; font-size: 16px;">Score: TU ${window.rpsScore.joueur} - ORDI ${window.rpsScore.ordi}</p>`;
+    };
+
+    window.tenterDeviner = function() {
+      const input = document.getElementById('guess-input');
+      const guess = parseInt(input.value);
+      window.essais++;
+
+      if (isNaN(guess) || guess < 1 || guess > 100) {
+        document.getElementById('deviner-result').innerHTML = '⚠️ Entre un nombre entre 1 et 100!';
+        return;
+      }
+
+      let resultat = '';
+      if (guess === window.nombreSecret) {
+        resultat = `🎉 BRAVO! C'était ${window.nombreSecret}!<br>Essais: ${window.essais}`;
+      } else if (guess < window.nombreSecret) {
+        resultat = `⬆️ C'est plus grand! (Essai ${window.essais})`;
+      } else {
+        resultat = `⬇️ C'est plus petit! (Essai ${window.essais})`;
+      }
+
+      document.getElementById('deviner-result').innerHTML = resultat;
+      input.value = '';
+      input.focus();
+    };
+
+    window.creerMemory = function() {
+      const emojis = ['🐶', '🐶', '🐱', '🐱', '🦁', '🦁', '🐻', '🐻', '🐼', '🐼', '🦊', '🦊'];
+      emojis.sort(() => Math.random() - 0.5);
+
+      window.memoryCards = emojis;
+      window.memoryFlipped = [];
+      window.memoryFound = 0;
+
+      let html = '<h3 style="margin-top: 0; color: #39FF14;">🧠 Memory - Trouve les paires!</h3>';
+      html += '<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 25px auto; width: fit-content;">';
+
+      emojis.forEach((emoji, i) => {
+        html += `<button onclick="flipMemoryCard(${i})" id="card-${i}" style="width: 70px; height: 70px; font-size: 35px; background: #39FF14; border: 2px solid #7FFF00; border-radius: 8px; cursor: pointer; font-weight: bold;">?</button>`;
+      });
+
+      html += '</div><div id="memory-result" style="margin-top: 20px; font-size: 18px; min-height: 30px;"></div>';
+      document.getElementById('game-zone').innerHTML = html;
+    };
+
+    window.flipMemoryCard = function(index) {
+      if (window.memoryFlipped.includes(index) || document.getElementById('card-' + index).textContent !== '?') return;
+
+      const card = document.getElementById('card-' + index);
+      card.textContent = window.memoryCards[index];
+      card.style.background = '#7FFF00';
+
+      window.memoryFlipped.push(index);
+
+      if (window.memoryFlipped.length === 2) {
+        const [first, second] = window.memoryFlipped;
+        if (window.memoryCards[first] === window.memoryCards[second]) {
+          window.memoryFound++;
+          window.memoryFlipped = [];
+          if (window.memoryFound === 6) {
+            document.getElementById('memory-result').innerHTML = '🎉 TU AS GAGNÉ!';
+          }
+        } else {
+          setTimeout(() => {
+            document.getElementById('card-' + first).textContent = '?';
+            document.getElementById('card-' + first).style.background = '#39FF14';
+            document.getElementById('card-' + second).textContent = '?';
+            document.getElementById('card-' + second).style.background = '#39FF14';
+            window.memoryFlipped = [];
+          }, 800);
+        }
+      }
+    };
+
+    window.creerSimon = function() {
+      window.simonSequence = [];
+      window.simonLevel = 1;
+      window.simonPlaying = false;
+
+      let html = '<h3 style="margin-top: 0; color: #39FF14;">🎨 Simon - Niveau ' + window.simonLevel + '</h3>';
+      html += '<div style="display: grid; grid-template-columns: repeat(2, 120px); gap: 15px; margin: 25px auto; width: fit-content;">';
+      html += '<button onclick="simonClick(0)" id="simon-0" style="width: 120px; height: 120px; background: #FF6347; border: 3px solid #FF4500; border-radius: 10px; cursor: pointer; font-size: 35px; font-weight: bold;">🔴</button>';
+      html += '<button onclick="simonClick(1)" id="simon-1" style="width: 120px; height: 120px; background: #FFD700; border: 3px solid #FFA500; border-radius: 10px; cursor: pointer; font-size: 35px; font-weight: bold;">🟡</button>';
+      html += '<button onclick="simonClick(2)" id="simon-2" style="width: 120px; height: 120px; background: #32CD32; border: 3px solid #228B22; border-radius: 10px; cursor: pointer; font-size: 35px; font-weight: bold;">🟢</button>';
+      html += '<button onclick="simonClick(3)" id="simon-3" style="width: 120px; height: 120px; background: #1E90FF; border: 3px solid #00008B; border-radius: 10px; cursor: pointer; font-size: 35px; font-weight: bold;">🔵</button>';
+      html += '</div>';
+      html += '<button onclick="simonStart()" style="padding: 15px 30px; background: #39FF14; color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; margin: 20px 0;">Commencer</button>';
+      html += '<div id="simon-result" style="margin-top: 20px; font-size: 18px; min-height: 30px;"></div>';
+
+      document.getElementById('game-zone').innerHTML = html;
+    };
+
+    window.simonStart = function() {
+      window.simonSequence = [];
+      window.simonLevel = 1;
+      window.simonPlaying = true;
+      document.getElementById('simon-result').innerHTML = 'Regarde bien!';
+      window.simonPlay();
+    };
+
+    window.simonPlay = function() {
+      const next = Math.floor(Math.random() * 4);
+      window.simonSequence.push(next);
+
+      setTimeout(() => {
+        window.simonSequence.forEach((color, i) => {
+          setTimeout(() => {
+            window.simonFlash(color);
+          }, i * 600);
+        });
+      }, 600);
+
+      setTimeout(() => {
+        document.getElementById('simon-result').innerHTML = 'À toi!';
+        window.simonPlayerIndex = 0;
+      }, window.simonSequence.length * 600 + 1200);
+    };
+
+    window.simonFlash = function(index) {
+      const btn = document.getElementById('simon-' + index);
+      btn.style.opacity = '0.5';
+      setTimeout(() => { btn.style.opacity = '1'; }, 300);
+    };
+
+    window.simonClick = function(index) {
+      if (!window.simonPlaying) return;
+
+      window.simonFlash(index);
+      if (window.simonSequence[window.simonPlayerIndex] === index) {
+        window.simonPlayerIndex++;
+        if (window.simonPlayerIndex === window.simonSequence.length) {
+          window.simonLevel++;
+          document.getElementById('simon-result').innerHTML = '✅ Bien! Niveau ' + window.simonLevel;
+          setTimeout(() => window.simonPlay(), 1000);
+        }
+      } else {
+        document.getElementById('simon-result').innerHTML = '❌ Erreur! Tu as atteint le niveau ' + window.simonLevel;
+        window.simonPlaying = false;
+      }
+    };
+
+    // Attacher le bouton jeux
+    setTimeout(function() {
+      const gamesBtn = document.getElementById('games-btn');
+      if (gamesBtn) {
+        gamesBtn.addEventListener('click', function() {
+          console.log('🎮 Ouverture jeux...');
+          window.ouvrirGamesModal();
+        });
+        console.log('✅ Bouton jeux attaché');
+      } else {
+        console.error('❌ Bouton jeux NOT found!');
+      }
+    }, 500);
+
+    // --- PAINT APP EN PLEIN ÉCRAN ---
+    let canvasApp = null;
+    let ctxApp = null;
+    let isDrawingApp = false;
+    let currentToolApp = 'pen';
+    let currentColorApp = '#7FFF00';
+    let currentBrusheApp = 'normal';
+    let brushSizes = { thin: 1, normal: 3, thick: 8 };
+
+    window.ouvrirPaintApp = function() {
+      document.getElementById('paint-modal').style.display = 'block';
+      canvasApp = document.getElementById('paint-canvas-app');
+      ctxApp = canvasApp.getContext('2d');
+
+      canvasApp.width = canvasApp.offsetWidth;
+      canvasApp.height = canvasApp.offsetHeight;
+
+      canvasApp.addEventListener('mousedown', (e) => {
+        isDrawingApp = true;
+        const rect = canvasApp.getBoundingClientRect();
+        ctxApp.beginPath();
+        ctxApp.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+      });
+
+      canvasApp.addEventListener('mousemove', (e) => {
+        if (!isDrawingApp) return;
+        const rect = canvasApp.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (currentToolApp === 'pen') {
+          ctxApp.strokeStyle = currentColorApp;
+          ctxApp.lineWidth = brushSizes[currentBrusheApp] || 3;
+          ctxApp.lineCap = 'round';
+          ctxApp.lineJoin = 'round';
+
+          if (currentBrusheApp === 'spray') {
+            // Effet spray/pointillé
+            for (let i = 0; i < 5; i++) {
+              const offsetX = (Math.random() - 0.5) * 20;
+              const offsetY = (Math.random() - 0.5) * 20;
+              ctxApp.fillStyle = currentColorApp;
+              ctxApp.beginPath();
+              ctxApp.arc(x + offsetX, y + offsetY, 2, 0, Math.PI * 2);
+              ctxApp.fill();
+            }
+          } else {
+            ctxApp.lineTo(x, y);
+            ctxApp.stroke();
+          }
+        } else if (currentToolApp === 'eraser') {
+          ctxApp.clearRect(x - 10, y - 10, 20, 20);
+        }
+      });
+
+      canvasApp.addEventListener('mouseup', () => {
+        isDrawingApp = false;
+      });
+    };
+
+    window.fermerPaintApp = function() {
+      document.getElementById('paint-modal').style.display = 'none';
+    };
+
+    window.changerOutilApp = function(outil) {
+      currentToolApp = outil;
+      document.getElementById('app-pen-btn').style.background = outil === 'pen' ? '#7FFF00' : '#666';
+      document.getElementById('app-pen-btn').style.color = outil === 'pen' ? '#000' : '#fff';
+      document.getElementById('app-eraser-btn').style.background = outil === 'eraser' ? '#7FFF00' : '#666';
+      document.getElementById('app-eraser-btn').style.color = outil === 'eraser' ? '#000' : '#fff';
+    }
+
+    window.changerCouleurApp = function(couleur) {
+      currentColorApp = couleur;
+      document.getElementById('app-color-picker').value = couleur;
+    }
+
+    window.changerBrosseApp = function(brosse) {
+      currentBrusheApp = brosse;
+      document.getElementById('brush-normal').style.background = brosse === 'normal' ? '#7FFF00' : '#666';
+      document.getElementById('brush-normal').style.color = brosse === 'normal' ? '#000' : '#fff';
+      document.getElementById('brush-thick').style.background = brosse === 'thick' ? '#7FFF00' : '#666';
+      document.getElementById('brush-thick').style.color = brosse === 'thick' ? '#000' : '#fff';
+      document.getElementById('brush-thin').style.background = brosse === 'thin' ? '#7FFF00' : '#666';
+      document.getElementById('brush-thin').style.color = brosse === 'thin' ? '#000' : '#fff';
+      document.getElementById('brush-spray').style.background = brosse === 'spray' ? '#7FFF00' : '#666';
+      document.getElementById('brush-spray').style.color = brosse === 'spray' ? '#000' : '#fff';
+    };
+
+    window.effacerDessinApp = function() {
+      if (ctxApp) {
+        ctxApp.clearRect(0, 0, canvasApp.width, canvasApp.height);
+      }
+    };
+
+    window.traiterQuestion = async function(q) {
+      // Détecter si c'est une question sur les concerts
+      const motsConcerts = ['concert', 'concerts', 'festival', 'festivals', 'rock', 'hardrock', 'hard rock', 'metal', 'pop', 'groupe', 'groupes', 'artiste', 'artistes', 'live', 'spectacle', 'spectacles', 'tournée', 'tournées', 'france'];
+      const estQuestionConcerts = motsConcerts.some(mot => q.toLowerCase().includes(mot));
+
+      try {
+        const maxTokens = estQuestionConcerts ? 300 : 80;
+        let basePrompt = personalities[currentPersonality][currentLanguage];
+
+        const systemPrompt = estQuestionConcerts
+          ? (currentLanguage === 'fr'
+            ? `${basePrompt} Pour les concerts en France, fournis des informations détaillées sur les festivals et concerts de rock, hardrock, metal, pop avec les dates, lieux, et où acheter les billets. Aide avec des détails!`
+            : currentLanguage === 'en'
+            ? `${basePrompt} For concerts in France, provide detailed info on rock, hardrock, metal, pop festivals and concerts with dates, venues, and where to buy tickets. Help with details!`
+            : `${basePrompt} 프랑스 콘서트에 대해 락, 메탈, 팝 페스티벌과 콘서트의 상세 정보를 날짜, 장소, 티켓 구매처와 함께 제공해. 상세히 도움.`)
+          : basePrompt;
+
+        // Appelle le serveur backend au lieu de l'API directement
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: q,
+            systemPrompt: systemPrompt,
+            maxTokens: maxTokens
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.response) {
+          return data.response;
+        } else if (data.error) {
+          return 'Erreur: ' + data.error;
+        } else {
+          return 'Oups, Claude n\'a pas répondu...';
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        return 'Erreur de connexion au serveur... Lance le serveur avec "npm start"!';
+      }
+    };
+
+    window.contient = function(texte, mots) {
+      return mots.some(m => texte.includes(m));
+    };
+
+    window.getHelp = function() {
+      const knowledge = baseDeConnaissances[currentLanguage];
+      let html = currentLanguage === 'fr'
+        ? '<strong>Quelques trucs que je peux faire:</strong><br><br>'
+        : '<strong>Some stuff I can do:</strong><br><br>';
+      knowledge.forEach(entree => {
+        html += `• <strong>${entree.mots[0]}</strong><br>`;
+      });
+      return html;
+    };
+
+    // Initialiser quand le DOM est prêt
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initChat);
+    } else {
+      initChat();
+    }
+  </script>
+
+</body>
+</html>

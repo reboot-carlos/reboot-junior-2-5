@@ -1,0 +1,18 @@
+services:
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    ports:
+      - "3000:3000"
+    env_file: .env
+    restart: unless-stopped
+
+  python:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    ports:
+      - "8000:8000"
+    env_file: .env
+    restart: unless-stopped

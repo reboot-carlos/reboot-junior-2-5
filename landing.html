@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lisa - Ton Chatbot Préféré</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0D2E0F 0%, #1F4620 100%);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 800px;
+    }
+
+    h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 5rem;
+      color: #7FFF00;
+      text-shadow: 0 0 20px #39FF14, 0 0 40px #7FFF00;
+      margin-bottom: 1rem;
+      animation: glow 2s ease-in-out infinite;
+    }
+
+    .emoji {
+      font-size: 6rem;
+      margin: 1rem 0;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    p {
+      font-size: 1.3rem;
+      color: #39FF14;
+      margin: 1rem 0;
+      line-height: 1.8;
+    }
+
+    .description {
+      background: rgba(57, 255, 20, 0.1);
+      border: 2px solid #39FF14;
+      border-radius: 10px;
+      padding: 2rem;
+      margin: 2rem 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .feature {
+      background: rgba(31, 70, 32, 0.5);
+      border: 1px solid #39FF14;
+      border-radius: 8px;
+      padding: 1.5rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-title {
+      color: #7FFF00;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #39FF14, #7FFF00);
+      color: #000;
+      padding: 1rem 3rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 2rem;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+    }
+
+    .cta-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(57, 255, 20, 0.8);
+    }
+
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 20px #39FF14, 0 0 40px #7FFF00; }
+      50% { text-shadow: 0 0 30px #39FF14, 0 0 50px #7FFF00; }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>LISA</h1>
+    <div class="emoji">🟢</div>
+
+    <div class="description">
+      <p>Salut gros porc! 👋</p>
+      <p>Je suis <strong>Lisa</strong>, un chatbot vert vulgaire et nonchalant qui s'en fout de tout...</p>
+      <p>Mais je réponds TOUJOURS bien à tes questions! 😏</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">💬</div>
+        <div class="feature-title">Chat Intelligent</div>
+        <p>Discute avec moi en français, anglais ou coréen</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🎮</div>
+        <div class="feature-title">Mini Jeux</div>
+        <p>Pierre/Papier/Ciseaux, Deviner le nombre, Memory, Simon</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🎸</div>
+        <div class="feature-title">Guitare</div>
+        <p>Joue de la guitare simulée avec 6 cordes</p>
+      </div>
+
+      <div class="feature">
+        <div class="feature-icon">🎨</div>
+        <div class="feature-title">Paint</div>
+        <p>Dessine, efface, change les couleurs</p>
+      </div>
+    </div>
+
+    <p style="font-size: 1rem; color: #7FFF00; margin-top: 3rem;">
+      ⚡ Alimenté par Claude AI d'Anthropic ⚡
+    </p>
+
+    <a href="index.html" class="cta-button">Ouvrir le Chatbot</a>
+  </div>
+</body>
+</html>

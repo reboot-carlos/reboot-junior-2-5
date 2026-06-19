@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LISA - Chatbot</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0D2E0F;
+      color: #39FF14;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 3rem;
+      margin: 20px 0;
+      text-shadow: 0 0 20px #39FF14;
+    }
+    #zone-chat {
+      width: 100%;
+      max-width: 700px;
+      background: #1F4620;
+      border: 2px solid #39FF14;
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 400px;
+      max-height: 500px;
+      overflow-y: auto;
+      margin: 20px 0;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      line-height: 1.6;
+    }
+    .message.bot {
+      background: rgba(57, 255, 20, 0.1);
+      border-left: 3px solid #39FF14;
+      color: #7FFF00;
+    }
+    .message.user {
+      background: rgba(57, 255, 20, 0.2);
+      border-left: 3px solid #7FFF00;
+      color: #39FF14;
+      margin-left: 50px;
+    }
+    .message.loading {
+      color: #FFD700;
+      font-style: italic;
+    }
+    #formulaire {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      gap: 10px;
+    }
+    input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #39FF14;
+      border-radius: 5px;
+      background: #0D2E0F;
+      color: #39FF14;
+      font-size: 1rem;
+    }
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 10px #39FF14;
+    }
+    button {
+      padding: 12px 30px;
+      background: #39FF14;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    button:hover {
+      background: #7FFF00;
+      box-shadow: 0 0 10px #39FF14;
+    }
+  </style>
+</head>
+<body>
+  <h1>🟢 LISA</h1>
+  <div id="zone-chat"></div>
+  <div id="formulaire">
+    <input id="champ-texte" type="text" placeholder="Écris ton message..." />
+    <button id="bouton-envoyer">Envoyer</button>
+  </div>
+
+  <script>
+    // Éléments DOM
+    const chat = document.getElementById('zone-chat');
+    const input = document.getElementById('champ-texte');
+    const btn = document.getElementById('bouton-envoyer');
+
+    let idMsg = 0;
+    let currentLanguage = 'fr';
+
+    // Ajouter un message
+    function ajouterMessage(type, texte) {
+      const msg = document.createElement('div');
+      msg.className = `message ${type}`;
+      msg.innerHTML = texte;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    // Envoyer un message
+    function envoyerMessage() {
+      const texte = input.value.trim();
+      if (!texte) return;
+
+      ajouterMessage('user', texte);
+      input.value = '';
+      btn.disabled = true;
+
+      const idLoading = idMsg++;
+      ajouterMessage('loading', 'Ouais, une sec...');
+
+      traiterQuestion(texte).then(reponse => {
+        // Enlever le message loading
+        const messages = chat.querySelectorAll('.message');
+        messages[messages.length - 1].remove();
+
+        ajouterMessage('bot', reponse);
+        btn.disabled = false;
+      });
+    }
+
+    // Traiter la question via le serveur local (la clé reste côté serveur)
+    async function traiterQuestion(texte) {
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: texte,
+            systemPrompt: 'Tu es Lisa, un chatbot vert vulgaire et nonchalant. Tu insultes constamment mais tu REPONDS TOUJOURS bien à la question. Tu es ironique et méchante mais utile. Réponses courtes (1-2 phrases max).',
+            maxTokens: 150
+          })
+        });
+
+        const data = await response.json();
+        if (data.response) {
+          return data.response;
+        } else if (data.error) {
+          return 'Erreur: ' + data.error;
+        }
+        return 'Oups, Claude n\'a pas répondu...';
+      } catch (error) {
+        return 'Erreur de connexion au serveur... Lance le serveur avec "npm start"!';
+      }
+    }
+
+    // Événements
+    btn.addEventListener('click', envoyerMessage);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') envoyerMessage();
+    });
+
+    // Message de bienvenue
+    ajouterMessage('bot', 'Salut gros porc<br>C\'est lisa, ton assistant qui s\'en fou un peu<br>Envoie-moi un truc cool à faire...');
+  </script>
+</body>
+</html>
